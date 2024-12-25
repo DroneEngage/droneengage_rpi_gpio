@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.10.0)
 
 if(NOT WIN32)
   string(ASCII 27 Esc)
@@ -29,6 +29,7 @@ endif()
 
 SET (__APP__VERSION__ "1.0.0")
 add_definitions( -D__APP__VERSION__="${__APP__VERSION__}")
+project(DE_RPI_GPIO VERSION ${__APP__VERSION__})
 
 
 
