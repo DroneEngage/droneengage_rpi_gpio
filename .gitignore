@@ -1,0 +1,8 @@
+/bin/
+/build/
+/Debug/
+
+de_rpi_gpio.local
+
+*.sh
+!build.sh
