@@ -5,7 +5,7 @@
 
 namespace de
 {
-namespace sdr
+namespace gpio
 {
     class CGPIO_Facade : public de::comm::CFacade_Base
     {

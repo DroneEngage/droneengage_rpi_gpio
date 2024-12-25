@@ -54,7 +54,7 @@ namespace gpio
    
 
         private:
-            de::sdr::CGPIO_Facade& m_sdr_facade = de::sdr::CGPIO_Facade::getInstance();
+            de::gpio::CGPIO_Facade& m_gpio_facade = de::gpio::CGPIO_Facade::getInstance();
     };
 
 }

@@ -102,7 +102,7 @@ add_executable( OUTPUT_BINARY ${files})
 
 # Link the required libraries
 target_link_libraries(OUTPUT_BINARY 
-  #wiringPi
+  wiringPi
 )
 
 set_target_properties( OUTPUT_BINARY 

@@ -42,11 +42,15 @@ void de::gpio::CGPIOMain::loopScheduler()
 
 bool de::gpio::CGPIOMain::init()
 {
+    
+    m_gpio_driver.init();
+    
     m_exit_thread = false; 
 
 
     m_scheduler_thread = std::thread{[&](){ loopScheduler(); }};
 
+    
     return true;
 }
 

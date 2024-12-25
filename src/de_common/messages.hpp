@@ -327,6 +327,10 @@
 #define SDR_ACTION_SDR_INFO                                 6
 #define SDR_ACTION_TRIGGER                                  7
 
+
+// GPIO Parameters
+#define GPIO_ACTION_PORT                                    0
+
 // CAMERA MODULE MESSAGES
 
 #define EXTERNAL_CAMERA_TYPE_UNKNOWN                        0

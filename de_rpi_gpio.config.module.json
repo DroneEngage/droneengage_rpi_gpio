@@ -8,8 +8,29 @@
   // IP & Port of this module
   "s2s_udp_listening_ip": "127.0.0.1", 
   "s2s_udp_listening_port": "61025", 
-  "s2s_udp_packet_size": "8192"
+  "s2s_udp_packet_size": "8192",
   
+
+  "pins":
+  [
+    /*
+    	INPUT			         0
+    	OUTPUT			       1
+    	PWM_OUTPUT		     2
+    	PWM_MS_OUTPUT	     8
+    	PWM_BAL_OUTPUT     9
+    	GPIO_CLOCK		     3
+    	SOFT_PWM_OUTPUT		 4
+    	SOFT_TONE_OUTPUT	 5
+    	PWM_TONE_OUTPUT		 6
+    	PM_OFF		         7   // to input / release line
+
+      [PIN_NO,MODE,VALUE]
+    */
+    [7,1,1],
+    [11,1,1],
+    [12,1,1]
+  ]
 }
 
 

@@ -55,7 +55,7 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
 
             case TYPE_AndruavMessage_GPIO_ACTION:
             {
-/**
+                /**
                 * @brief This is a general purpose message 
                 * 
                 * a: P2P_ACTION_ ... commands
@@ -69,117 +69,29 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                 CGPIODriver& cGPIODriver  = CGPIODriver::getInstance();                    
                 UNUSED(cGPIODriver);
 
-                // switch (cmd["a"].get<int>())
-                // {
-                //     case GPIO_ACTION_CONNECT:
-                //     {
-                //         cGPIODriver.openGPIO();
-                //     }
-                //     break;
+                switch (cmd["a"].get<int>())
+                {
+                    case GPIO_ACTION_PORT:
+                    {
+                        /**
+                         * 'm': set mode [In/Out/Pwm]
+                         * 'p': gpio number
+                         * 'b': action [Read/Write/Pwm]
+                         * 'v': value
+                         */
 
-                //     case GPIO_ACTION_DISCONNECT:
-                //     {
-                //         cGPIODriver.closeGPIO();
-                //     }
-                //     break;
+                        CGPIO_Facade::getInstance();
+                    }
+                    break;
 
-                //     case GPIO_ACTION_SET_CONFIG:
-                //     {
-                //         /**
-                         
-                //             int     i:  driver index
-                //             double fc:  frequency center
-                //             double  g:  gain
-                //             double  s:  sample Rate
-                //             double  d:  decode mode
-                //             double  r:  number of bars for barchart.
-                //             [int     t]:  interval of sending data back per seconds [0 means ignore]. 
+                    default:
+                    {
 
-                //          */
-                //         #ifdef DEBUG
-                //             std::cout << cmd.dump() << std::endl;
-                //         #endif
-                        
-                //         if (validateField(cmd,"i", Json_de::value_t::number_unsigned))
-                //         {
-                //             cGPIODriver.setGPIODriverIndex(cmd["i"].get<int>());
-                //         }
-
-                //         if (cmd.contains("fc"))
-                //         {
-                //             cGPIODriver.setFrequencyCenter(cmd["fc"].get<double>());
-                //         }
-
-                //         if (cmd.contains("g"))
-                //         {
-                //             cGPIODriver.setGain(cmd["g"].get<double>());
-                //         }
-
-                //         if (cmd.contains("s"))
-                //         {
-                //             cGPIODriver.setSampleRate(cmd["s"].get<double>());
-                //         }
-
-                //         if (cmd.contains("m"))
-                //         {
-                //             //NOT IMPLEMENTED (Modulation)
-                //         }
-
-                //         if (cmd.contains("r"))
-                //         {
-                //             cGPIODriver.setBars(cmd["r"].get<double>());
-                //         }
-
-                //         if (validateField(cmd, "t", Json_de::value_t::number_unsigned))
-                //         {   // milli-seconds
-                //             cGPIODriver.setIntervals(cmd["t"].get<int>()); 
-                //         }
-                //         else
-                //         {
-                //             cGPIODriver.setIntervals(0);
-                //         }
+                    }
+                    break;                 
 
 
-                //         if (validateField(cmd, "l", Json_de::value_t::number_unsigned))
-                //         {   // milli-seconds
-                //             cGPIODriver.setTriggerLevel(cmd["l"].get<int>()); 
-                //         }
-                //         else
-                //         {
-                //             cGPIODriver.setTriggerLevel(0);
-                //         }
-
-
-                //         // broadcast updated info.
-                //         CGPIODriver::getInstance().openGPIO();
-
-                //         CGPIO_Facade::getInstance().API_GPIOInfo(std::string(""));
-                //         CGPIO_Facade::getInstance().sendLocationInfo(std::string(""));
-                //     }
-                //     break;
-
-                //     case GPIO_ACTION_READ_DATA:
-                //     {
-                //         // Create a new thread and detach it immediately
-                //         std::thread([&]() { 
-                //             cGPIODriver.startStreaming(); 
-                //         }).detach(); // Detach the thread right after creation
-                //     }
-                //     break;
-                    
-
-                //     case GPIO_ACTION_PAUSE_DATA:
-                //     {
-                //         cGPIODriver.pauseStreaming();
-                //     }
-                //     break;
-
-                //     default:
-                //     {
-
-                //     }
-                //     break;
-                // }
+                };
             }
             break;
 

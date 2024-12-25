@@ -5,7 +5,7 @@
 
 #include "gpio_facade.hpp"
 #include "gpio_parser.hpp"
-
+#include "gpio_driver.hpp"
 
 #include "../helpers/json_nlohmann.hpp"
 using Json_de = nlohmann::json;
@@ -81,6 +81,7 @@ namespace gpio
 
             bool m_exit_thread = true;
             
+            CGPIODriver &m_gpio_driver = CGPIODriver::getInstance();
 
         
     };

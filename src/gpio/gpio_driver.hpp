@@ -2,6 +2,10 @@
 #define GPIO_DRIVER_H_
 
 
+#include "../helpers/json_nlohmann.hpp"
+using Json_de = nlohmann::json;
+
+
 namespace de
 {
 namespace gpio
@@ -40,6 +44,8 @@ class CGPIODriver
         public:
 
             bool init();
+
+            bool uninit();
     };
 }
 }
