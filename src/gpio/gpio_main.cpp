@@ -1,7 +1,8 @@
+#include <iostream>
 #include "../helpers/colors.hpp"
 #include "../helpers/helpers.hpp"
-
 #include "../defines.hpp"
+
 #include "../de_common/configFile.hpp"
 #include "../de_common/localConfigFile.hpp"
 #include "gpio_main.hpp"
@@ -23,7 +24,7 @@ void de::gpio::CGPIOMain::loopScheduler()
 
             if (m_counter%1000 ==0)
             {   // each 1000 msec
-                
+                CGPIO_Facade::getInstance().API_sendGPIOStatus("");
             }
             if (m_counter%1000 ==0)
             {   // each 10000 msec

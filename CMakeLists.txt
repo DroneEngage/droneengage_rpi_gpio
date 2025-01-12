@@ -101,9 +101,14 @@ include_directories(${PROJECT_SOURCE_DIR}/3rdparty)
 add_executable( OUTPUT_BINARY ${files})
 
 # Link the required libraries
-target_link_libraries(OUTPUT_BINARY 
-  wiringPi
-)
+if(NOT TEST_MODE_NO_WIRINGPI_LINK)
+  target_link_libraries(OUTPUT_BINARY 
+    wiringPi
+  )
+else()
+  # Define the preprocessor macro for TEST_MODE_NO_WIRINGPI_LINK
+  target_compile_definitions(OUTPUT_BINARY PRIVATE TEST_MODE_NO_WIRINGPI_LINK)
+endif()
 
 set_target_properties( OUTPUT_BINARY 
                 PROPERTIES 

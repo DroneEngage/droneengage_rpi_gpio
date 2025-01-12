@@ -25,11 +25,29 @@
     	PWM_TONE_OUTPUT		 6
     	PM_OFF		         7   // to input / release line
 
-      [PIN_NO,MODE,VALUE]
+      {
+        "gpio": 7,            // mandatory
+        "mode": 1,            // mandatory
+        "value": 1,           // OPTIONAL and ignored if pin mode is input.
+        "name": "power_led",  // OPTIONAL
+      },
     */
-    [7,1,1],
-    [11,1,1],
-    [12,1,1]
+    {
+      "gpio": 7,
+      "mode": 1,
+      "value": 1,
+      "name": "power_led"
+    },
+    {
+      "gpio": 11,
+      "mode": 1,
+      "value": 1
+    },
+    {
+      "gpio": 12,
+      "mode": 1,
+      "value": 1
+    }
   ]
 }
 

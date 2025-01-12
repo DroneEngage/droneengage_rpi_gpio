@@ -34,7 +34,8 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
 
     UNUSED(is_system);
     UNUSED(permission);
-    
+    std::cout << "messageType:" << messageType << std::endl;
+
     if (messageType == TYPE_AndruavMessage_RemoteExecute)
     {
         parseRemoteExecute(andruav_message);
@@ -48,11 +49,6 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
         
         switch (messageType)
         {
-            case TYPE_AndruavMessage_ID:
-            {
-            }
-            break;
-
             case TYPE_AndruavMessage_GPIO_ACTION:
             {
                 /**
@@ -67,20 +63,91 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                 if (!cmd.contains("a") || !cmd["a"].is_number_integer()) return ;
                     
                 CGPIODriver& cGPIODriver  = CGPIODriver::getInstance();                    
-                UNUSED(cGPIODriver);
+                
 
                 switch (cmd["a"].get<int>())
                 {
-                    case GPIO_ACTION_PORT:
+                    case GPIO_ACTION_PORT_CONFIG:
                     {
                         /**
-                         * 'm': set mode [In/Out/Pwm]
+                         * 'm': set mode 
+                         * 
+                         * *    INPUT			        0
+                         * *    OUTPUT			        1
+                         * *    PWM_OUTPUT		        2
+                         * *    PWM_MS_OUTPUT	        8
+                         * *    PWM_BAL_OUTPUT          9
+                         * *    GPIO_CLOCK		        3
+                         * *    SOFT_PWM_OUTPUT		    4
+                         * *    SOFT_TONE_OUTPUT	    5
+                         * *    PWM_TONE_OUTPUT		    6
+                         * *    PM_OFF		            7   // to input / release line
+                         *  
+                         * 'n': gpio name
                          * 'p': gpio number
-                         * 'b': action [Read/Write/Pwm]
-                         * 'v': value
+                         * 'v': value [used in write mode.]
+                         * 'r': read
                          */
 
-                        CGPIO_Facade::getInstance();
+                        if (!cmd.contains("p")) return ; // missing parameters
+
+                        GPIO gpio;
+                        gpio.pin_number = cmd["p"].get<int>();
+                        gpio.pin_mode = cmd["m"].get<int>();
+                        if (cmd.contains("v"))
+                        {
+                            gpio.pin_value = cmd["v"].get<int>();
+                        }
+                        if (cmd.contains("n"))
+                        {
+                            gpio.pin_name = cmd["n"].get<int>();
+                        }
+                        cGPIODriver.configurePort (gpio);
+                        CGPIO_Facade::getInstance().API_sendGPIOStatus("");
+
+                    }
+                    break;
+
+                    case GPIO_ACTION_PORT_WRITE:
+                    {
+                        /**
+                         * 'n': gpio name       // 1st priority
+                         * 'p': gpio number     // 2nd priority
+                         * 'v': value           // mandatory
+                         */
+
+                        CGPIODriver& cGPIODriver  = CGPIODriver::getInstance();
+                        
+                        if (!cmd.contains("v")) break; // invalid command
+                        
+                        const int value = cmd["v"].get<int>();
+                        if (cmd.contains("n")) // priority for named gpio  over gpio value.
+                        {
+                            // gpio name
+                            const GPIO* gpio = cGPIODriver.getGPIOByName(cmd["n"].get<std::string>());
+                            if (gpio == nullptr) return ; // gpio is not defined.
+                            
+                            cGPIODriver.writePin(gpio->pin_number, value);
+                            break;
+                        }
+
+                        if (cmd.contains("p"))
+                        {
+                            // gpio name
+                            const GPIO* gpio = cGPIODriver.getGPIOByNumber(cmd["p"].get<int>());
+                            if (gpio == nullptr) return ; // gpio is not defined.
+
+                            cGPIODriver.writePin(gpio->pin_number, value);
+                            break;
+                        }
+                    }
+                    break;
+
+                    case GPIO_ACTION_PORT_READ:
+                    {
+                        // TODO should reply to sender with a message contains value.
+
+                        
                     }
                     break;
 
@@ -95,7 +162,22 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
             }
             break;
 
-            
+
+            case TYPE_AndruavMessage_GPIO_REMOTE_EXECUTE:
+            {
+                const int subCommand = cmd["a"].get<int>();
+                switch (subCommand)
+                {
+
+                    case TYPE_AndruavMessage_GPIO_STATUS:
+                        CGPIO_Facade::getInstance().API_sendGPIOStatus("");
+                    break;
+
+                    default:
+                    break;
+                }
+            }
+            break;       
 
             default:
             {
