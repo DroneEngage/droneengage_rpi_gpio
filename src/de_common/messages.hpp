@@ -266,9 +266,9 @@
 
 #define TYPE_AndruavMessage_P2P_INFO                        6517
 
-#define TYPE_AndruavMessage_GPIO_ACTION                      6519
-#define TYPE_AndruavMessage_GPIO_STATUS                      6520
-
+#define TYPE_AndruavMessage_GPIO_ACTION                     6519
+#define TYPE_AndruavMessage_GPIO_STATUS                     6520
+#define TYPE_AndruavMessage_GPIO_REMOTE_EXECUTE             6521
 /**********************************************************************
                         EOF Andruav Messages 2019
 **********************************************************************/
@@ -329,7 +329,10 @@
 
 
 // GPIO Parameters
-#define GPIO_ACTION_PORT                                    0
+#define GPIO_ACTION_PORT_CONFIG                             0
+#define GPIO_ACTION_INFO                                    1
+#define GPIO_ACTION_PORT_WRITE                              2
+#define GPIO_ACTION_PORT_READ                               3
 
 // CAMERA MODULE MESSAGES
 
