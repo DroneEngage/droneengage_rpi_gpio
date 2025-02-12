@@ -45,20 +45,25 @@ bool CGPIODriver::initGPIOFromConfigFile()
         for (const auto& pin : pins) {
             GPIO gpio;
             
-            gpio.active = true;
             gpio.pin_number = pin["gpio"].get<int>();         // First element
             gpio.pin_mode = pin["mode"].get<int>();           // Second element
             gpio.pin_value =  0;
             gpio.pin_name = "";
+            gpio.gpio_type = ENUM_GPIO_TYPE::GENERIC;
 
+            if (pin.contains("gpio_type"))
+            {
+                gpio.gpio_type = static_cast<de::gpio::ENUM_GPIO_TYPE>(pin["gpio_type"]);
+            }
+            
             if (pin.contains("value") && (gpio.pin_mode != INPUT))
             {
-                gpio.pin_value = pin["value"];          // Third element
+                gpio.pin_value = pin["value"];          
             }
 
             if (pin.contains("name"))
             {
-                gpio.pin_name = pin["name"].get<std::string>();          // Third element
+                gpio.pin_name = pin["name"].get<std::string>();
             }
             
             configurePort(gpio);
@@ -74,7 +79,6 @@ bool CGPIODriver::initGPIOFromConfigFile()
     }
     
 }
-
 
 void CGPIODriver::configurePort(const GPIO & gpio)
 {
@@ -114,7 +118,7 @@ bool CGPIODriver::init()
 
 bool CGPIODriver::uninit()
 {
-
+    return true;
 }
 
 void CGPIODriver::setPinMode (uint pin_number, uint pin_mode)
@@ -132,24 +136,30 @@ int CGPIODriver::readPin(uint pin_number)
     const GPIO* gpio = getGPIOByNumber (pin_number);
     
     if ((gpio == nullptr) || (gpio->pin_mode != INPUT))return -1;
-
-    #ifdef TEST_MODE_NO_WIRINGPI_LINK
-    std::cout << _INFO_CONSOLE_TEXT << ":readPin:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _NORMAL_CONSOLE_TEXT_ << std::endl;
-    return 0; // Emulation
-    #else
-    return digitalRead (pin_number);
-    #endif
-    
+    if (gpio) 
+    {
+        #ifdef TEST_MODE_NO_WIRINGPI_LINK
+        std::cout << _INFO_CONSOLE_TEXT << ":readPin:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _NORMAL_CONSOLE_TEXT_ << std::endl;
+        return 0; // Emulation
+        #else
+        return digitalRead (pin_number);
+        #endif
+    }
 }
 
 void CGPIODriver::writePin(uint pin_number, uint pin_value)
 {
-    #ifdef TEST_MODE_NO_WIRINGPI_LINK
-    std::cout << _INFO_CONSOLE_TEXT << ":writePin:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _INFO_CONSOLE_TEXT << ":pin_value:" << _LOG_CONSOLE_BOLD_TEXT << pin_value << _NORMAL_CONSOLE_TEXT_ << std::endl;
-    #else
-    digitalWrite (pin_number, pin_value);
-    #endif
-    
+    const GPIO* gpio = getGPIOByNumber(pin_number);
+    if (gpio) 
+    {
+        changeGPIOByNumber (pin_number, pin_value);
+        
+        #ifdef TEST_MODE_NO_WIRINGPI_LINK
+        std::cout << _INFO_CONSOLE_TEXT << ":writePin:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _INFO_CONSOLE_TEXT << ":pin_value:" << _LOG_CONSOLE_BOLD_TEXT << pin_value << _NORMAL_CONSOLE_TEXT_ << std::endl;
+        #else
+        digitalWrite (pin_number, pin_value);
+        #endif
+    }
 }
 
 
@@ -159,8 +169,30 @@ const std::vector<GPIO> CGPIODriver::getGPIOStatus() const
 }
 
 // Function to get GPIO record by pin_name
-const GPIO* CGPIODriver::getGPIOByName(const std::string& pin_name) const {
+const GPIO* CGPIODriver::getGPIOByName(const std::string& pin_name) const 
+{
+    return _getGPIOByName (pin_name);
+}
+
+// Function to get GPIO record by pin_number
+const GPIO* CGPIODriver::getGPIOByNumber(uint pin_number) const 
+{
     
+    return _getGPIOByNumber (pin_number);
+}
+
+
+void CGPIODriver::changeGPIOByNumber (uint pin_number, uint pin_value) 
+{
+    GPIO* gpio = _getGPIOByNumber (pin_number);
+    if (gpio)
+    {
+        gpio->pin_value = pin_value;
+    }
+}
+
+GPIO* CGPIODriver::_getGPIOByName (const std::string& pin_name) const
+{
     #ifdef TEST_MODE_NO_WIRINGPI_LINK
     std::cout << _INFO_CONSOLE_TEXT << ":getGPIOByName:" << _LOG_CONSOLE_BOLD_TEXT << pin_name << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
@@ -169,15 +201,15 @@ const GPIO* CGPIODriver::getGPIOByName(const std::string& pin_name) const {
 
     for (const auto& gpio : m_gpio_array) {
         if (gpio.pin_name == pin_name) {
-            return const_cast<GPIO*>(&gpio); // Return the matched GPIO record
+            return (GPIO*)(&gpio); // Return the matched GPIO record
         }
     }
     return nullptr; // Return nullptr if not found
 }
 
-// Function to get GPIO record by pin_number
-const GPIO* CGPIODriver::getGPIOByNumber(uint pin_number) const {
-    
+
+GPIO* CGPIODriver::_getGPIOByNumber (uint pin_number) const
+{
     #ifdef TEST_MODE_NO_WIRINGPI_LINK
     std::cout << _INFO_CONSOLE_TEXT << ":getGPIOByNumber:pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
@@ -189,7 +221,6 @@ const GPIO* CGPIODriver::getGPIOByNumber(uint pin_number) const {
     }
     return nullptr; // Return nullptr if not found
 }
-
 
 void CGPIODriver::removeGPIOByNumber (uint pin_number)
 {
@@ -205,6 +236,7 @@ void CGPIODriver::removeGPIOByNumber (uint pin_number)
     }
     return ;
 }
+
             
 
         

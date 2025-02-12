@@ -43,7 +43,7 @@ namespace gpio
                 
 
         public:
-            void API_sendGPIOStatus(const std::string&target_party_id) const;
+            void API_sendGPIOStatus(const std::string&target_party_id, const bool internal) const;
             
             
         protected:

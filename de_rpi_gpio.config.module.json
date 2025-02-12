@@ -13,7 +13,7 @@
 
   "pins":
   [
-    /*
+    /* GPIO-Mode
     	INPUT			         0
     	OUTPUT			       1
     	PWM_OUTPUT		     2
@@ -24,6 +24,14 @@
     	SOFT_TONE_OUTPUT	 5
     	PWM_TONE_OUTPUT		 6
     	PM_OFF		         7   // to input / release line
+    
+
+      GPIO-Type
+      GENERIC            0
+      SYSTEM             1
+      
+
+    
 
       {
         "gpio": 7,            // mandatory
@@ -36,12 +44,14 @@
       "gpio": 7,
       "mode": 1,
       "value": 1,
+      "gpio_type": 1,
       "name": "power_led"
     },
     {
       "gpio": 11,
       "mode": 1,
-      "value": 1
+      "value": 1,
+      "name": "camera_flash"
     },
     {
       "gpio": 12,

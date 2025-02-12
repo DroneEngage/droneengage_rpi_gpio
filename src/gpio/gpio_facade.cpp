@@ -9,7 +9,7 @@
 
 using namespace de::gpio;
 
-void CGPIO_Facade::API_sendGPIOStatus(const std::string&target_party_id) const
+void CGPIO_Facade::API_sendGPIOStatus(const std::string&target_party_id, const bool internal) const
 {
     CGPIODriver& cGPIODriver  = CGPIODriver::getInstance();
     
@@ -23,12 +23,13 @@ void CGPIO_Facade::API_sendGPIOStatus(const std::string&target_party_id) const
         const GPIO& gpio = gpios[i];
 
         Json_de json_gpio = {
-            {"active", gpio.active},
-            {"g", gpio.pin_number},
+            {"b", gpio.pin_number},
             {"m", gpio.pin_mode},
+            {"t", gpio.gpio_type},
             {"v", gpio.pin_value}
         };
-
+        
+        std::cout << json_gpio.dump() << std::endl;
         if (!gpio.pin_name.empty())
         {
             json_gpio["n"] =  gpio.pin_name;
@@ -47,7 +48,7 @@ void CGPIO_Facade::API_sendGPIOStatus(const std::string&target_party_id) const
         std::cout << "XXXXXXXXXXXXXXXXXXXXX" << jMsg.dump() << std::endl;
     #endif
     
-    m_module.sendJMSG (target_party_id, jMsg, TYPE_AndruavMessage_GPIO_ACTION,  true);
+    m_module.sendJMSG (target_party_id, jMsg, TYPE_AndruavMessage_GPIO_STATUS,  internal);
     
 }
 

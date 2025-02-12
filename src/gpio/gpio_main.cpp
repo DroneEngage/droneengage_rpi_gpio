@@ -24,11 +24,11 @@ void de::gpio::CGPIOMain::loopScheduler()
 
             if (m_counter%1000 ==0)
             {   // each 1000 msec
-                CGPIO_Facade::getInstance().API_sendGPIOStatus("");
+                CGPIO_Facade::getInstance().API_sendGPIOStatus("", true);
             }
             if (m_counter%1000 ==0)
             {   // each 10000 msec
-                
+                CGPIO_Facade::getInstance().API_sendGPIOStatus("", false);
                 
             }
         }

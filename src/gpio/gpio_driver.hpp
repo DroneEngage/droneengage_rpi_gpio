@@ -13,11 +13,30 @@ namespace de
 namespace gpio
 {
 
+typedef enum {
+    GENERIC     = 0,
+    SYSTEM      = 1
+} ENUM_GPIO_TYPE;
+
+/**
+    * 
+    * *    INPUT			        0
+    * *    OUTPUT			        1
+    * *    PWM_OUTPUT		        2
+    * *    PWM_MS_OUTPUT	        8
+    * *    PWM_BAL_OUTPUT           9
+    * *    GPIO_CLOCK		        3
+    * *    SOFT_PWM_OUTPUT		    4
+    * *    SOFT_TONE_OUTPUT	        5
+    * *    PWM_TONE_OUTPUT		    6
+    * *    PM_OFF		            7   // to input / release line
+    *
+* **/
 typedef struct GPIO{
-        bool active;
         uint pin_number;
         uint pin_mode;
         int pin_value;
+        ENUM_GPIO_TYPE gpio_type;
         std::string pin_name;
     } GPIO;
 
@@ -70,11 +89,15 @@ class CGPIODriver
             const GPIO* getGPIOByNumber (uint pin_number) const;
             const GPIO* getGPIOByName (const std::string& pin_name) const;
 
-
+            void changeGPIOByNumber (uint pin_number, uint pin_value);
+            
         private:
 
             void removeGPIOByNumber (uint pin_number);
             bool initGPIOFromConfigFile();
+
+            GPIO* _getGPIOByNumber (uint pin_number) const;
+            GPIO* _getGPIOByName (const std::string& pin_name) const;
 
         private:
 

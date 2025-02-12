@@ -112,9 +112,9 @@ void _displaySerial (void)
 void onReceive (const char * message, int len, Json_de jMsg)
 {
         
-    //#ifdef DDEBUG        
+    #ifdef DDEBUG        
         std::cout << _INFO_CONSOLE_TEXT << "RX MSG: :len " << std::to_string(len) << ":" << message <<   _NORMAL_CONSOLE_TEXT_ << std::endl;
-   // #endif
+    #endif
     
     try
     {
