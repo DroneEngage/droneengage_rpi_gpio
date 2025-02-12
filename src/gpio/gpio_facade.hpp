@@ -2,6 +2,7 @@
 #define GPIO_FACADE_H_
 
 #include "../de_common/de_facade_base.hpp"
+#include "gpio_driver.hpp"
 
 namespace de
 {
@@ -44,6 +45,7 @@ namespace gpio
 
         public:
             void API_sendGPIOStatus(const std::string&target_party_id, const bool internal) const;
+            void API_sendSingleGPIOStatus(const std::string&target_party_id, const GPIO& gpio, const bool internal) const;
             
             
         protected:

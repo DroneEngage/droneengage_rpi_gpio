@@ -123,12 +123,12 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                         bool trigger_event = false;
                             
                         if (!cmd.contains("v")) return ;
-                        
+                        const GPIO* gpio;
                         const int value = cmd["v"].get<int>();
                         if (cmd.contains("n")) // priority for named gpio  over gpio value.
                         {
                             // gpio name
-                            const GPIO* gpio = cGPIODriver.getGPIOByName(cmd["n"].get<std::string>());
+                            gpio = cGPIODriver.getGPIOByName(cmd["n"].get<std::string>());
                             if (gpio == nullptr) return ; // gpio is not defined.
                             if (gpio->pin_value != value) trigger_event = true;
                             cGPIODriver.writePin(gpio->pin_number, value);
@@ -137,7 +137,7 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                         if (cmd.contains("p"))
                         {
                             // gpio name
-                            const GPIO* gpio = cGPIODriver.getGPIOByNumber(cmd["p"].get<int>());
+                            gpio = cGPIODriver.getGPIOByNumber(cmd["p"].get<int>());
                             if (gpio == nullptr) return ; // gpio is not defined.
                             if (gpio->pin_value != value) trigger_event = true;
                             cGPIODriver.writePin(gpio->pin_number, value);
@@ -146,7 +146,7 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                         // Send updated GPIO Status
                         if (trigger_event)
                         {
-                            CGPIO_Facade::getInstance().API_sendGPIOStatus("", false);
+                            CGPIO_Facade::getInstance().API_sendSingleGPIOStatus("", gpio[0], false);
                         }
                     }
                     break;
