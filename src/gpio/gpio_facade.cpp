@@ -2,6 +2,11 @@
 #include "../helpers/colors.hpp"
 #include "../helpers/helpers.hpp"
 #include "../defines.hpp"
+#ifdef TEST_MODE_NO_WIRINGPI_LINK
+
+#else
+#include <wiringPi.h>
+#endif
 
 #include "../helpers/helpers.hpp"
 #include "gpio_facade.hpp"

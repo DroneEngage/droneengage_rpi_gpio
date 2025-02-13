@@ -141,7 +141,7 @@ void CGPIODriver::setPinMode (uint pin_number, uint pin_mode)
         pullUpDnControl(pin_number, PUD_DOWN);
     }
 
-    pullUpDnControl(butPin, PUD_UP); // Enable pull-up resistor on button
+    pullUpDnControl(pin_number, PUD_UP); // Enable pull-up resistor on button
 
     #endif
 }
