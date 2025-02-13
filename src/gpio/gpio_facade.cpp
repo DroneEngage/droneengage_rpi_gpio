@@ -31,6 +31,7 @@ void CGPIO_Facade::API_sendGPIOStatus(const std::string&target_party_id, const b
             {"b", gpio.pin_number},
             {"m", gpio.pin_mode},
             {"t", gpio.gpio_type},
+            {"d", gpio.pin_pwm_width},
             {"v", gpio.pin_value}
         };
         
@@ -77,6 +78,7 @@ void CGPIO_Facade::API_sendSingleGPIOStatus(const std::string&target_party_id, c
         {"b", gpio.pin_number},
         {"m", gpio.pin_mode},
         {"t", gpio.gpio_type},
+        {"d", gpio.pin_pwm_width},
         {"v", gpio.pin_value}
     };
         
