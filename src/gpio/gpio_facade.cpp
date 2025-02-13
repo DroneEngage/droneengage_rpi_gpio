@@ -99,7 +99,7 @@ void CGPIO_Facade::API_sendSingleGPIOStatus(const std::string&target_party_id, c
             {"s", json_array}
         };
 
-    #ifdef DDEBUG
+    #ifdef DEBUG
         std::cout << "XXXXXXXXXXXXXXXXXXXXX" << jMsg.dump() << std::endl;
     #endif
     

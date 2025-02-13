@@ -7,6 +7,11 @@
 
 using namespace de::gpio;
 
+#ifdef TEST_MODE_NO_WIRINGPI_LINK
+
+#else
+#include <wiringPi.h>
+#endif
 
 
 

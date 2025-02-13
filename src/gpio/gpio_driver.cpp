@@ -131,10 +131,11 @@ bool CGPIODriver::uninit()
 
 void CGPIODriver::setPinMode (uint pin_number, uint pin_mode)
 {
-    #ifdef TEST_MODE_NO_WIRINGPI_LINK
+    #ifdef DEBUG
     std::cout << _INFO_CONSOLE_TEXT << ":setPinMode:pin_number" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _INFO_CONSOLE_TEXT << ":pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_mode << _NORMAL_CONSOLE_TEXT_ << std::endl;
-    return ;
-    #else
+    #endif
+    
+    #ifndef TEST_MODE_NO_WIRINGPI_LINK
     pinMode (pin_number, pin_mode);
     if (pin_mode == OUTPUT)
     {
@@ -153,10 +154,11 @@ int CGPIODriver::readPin(uint pin_number)
     if ((gpio == nullptr) || (gpio->pin_mode != INPUT))return -1;
     if (gpio) 
     {
-        #ifdef TEST_MODE_NO_WIRINGPI_LINK
+        #ifdef DEBUG
         std::cout << _INFO_CONSOLE_TEXT << ":readPin:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _NORMAL_CONSOLE_TEXT_ << std::endl;
-        return 0; // Emulation
-        #else
+        #endif
+
+        #ifndef TEST_MODE_NO_WIRINGPI_LINK
         return digitalRead (pin_number);
         #endif
     }
@@ -169,9 +171,10 @@ void CGPIODriver::writePin(uint pin_number, uint pin_value)
     {
         changeGPIOByNumber (pin_number, pin_value);
         
-        #ifdef TEST_MODE_NO_WIRINGPI_LINK
+        #ifdef DEBUG
         std::cout << _INFO_CONSOLE_TEXT << ":writePin:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _INFO_CONSOLE_TEXT << ":pin_value:" << _LOG_CONSOLE_BOLD_TEXT << pin_value << _NORMAL_CONSOLE_TEXT_ << std::endl;
-        #else
+        #endif
+        #ifndef TEST_MODE_NO_WIRINGPI_LINK
         digitalWrite (pin_number, pin_value);
         #endif
     }
@@ -208,7 +211,7 @@ void CGPIODriver::changeGPIOByNumber (uint pin_number, uint pin_value)
 
 GPIO* CGPIODriver::_getGPIOByName (const std::string& pin_name) const
 {
-    #ifdef TEST_MODE_NO_WIRINGPI_LINK
+    #ifdef DEBUG
     std::cout << _INFO_CONSOLE_TEXT << ":getGPIOByName:" << _LOG_CONSOLE_BOLD_TEXT << pin_name << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
 
@@ -225,7 +228,7 @@ GPIO* CGPIODriver::_getGPIOByName (const std::string& pin_name) const
 
 GPIO* CGPIODriver::_getGPIOByNumber (uint pin_number) const
 {
-    #ifdef TEST_MODE_NO_WIRINGPI_LINK
+    #ifdef DEBUG
     std::cout << _INFO_CONSOLE_TEXT << ":getGPIOByNumber:pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
     
@@ -239,7 +242,7 @@ GPIO* CGPIODriver::_getGPIOByNumber (uint pin_number) const
 
 void CGPIODriver::removeGPIOByNumber (uint pin_number)
 {
-    #ifdef TEST_MODE_NO_WIRINGPI_LINK
+    #ifdef DEBUG
     std::cout << _INFO_CONSOLE_TEXT << ":removeGPIOByNumber:pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
     
@@ -277,11 +280,12 @@ void CGPIODriver::writePWM(const uint pin_number, int freq, int duty_cycle)
     //  The range of the `pwmSetRange` and the value passed to `pwmWrite`
     //  determine the resolution of the PWM signal.  A larger range
     //  gives finer control over the duty cycle.
-    #ifdef TEST_MODE_NO_WIRINGPI_LINK
+    #ifdef DEBUG
         std::cout << _INFO_CONSOLE_TEXT << ":writePWM:pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_number 
             << _INFO_CONSOLE_TEXT << ":freq:" << _LOG_CONSOLE_BOLD_TEXT << freq 
             << _INFO_CONSOLE_TEXT << ":duty_cycle:" << _LOG_CONSOLE_BOLD_TEXT << duty_cycle << _NORMAL_CONSOLE_TEXT_ << std::endl;
-    #else
+    #endif
+    #ifndef TEST_MODE_NO_WIRINGPI_LINK
     pwmSetMode(PWM_MODE_MS); // Example: Using Mark:Space mode.  Experiment with other modes.
     pwmSetRange(MAX_PWM); // Example range. Adjust as needed.
     pwmWrite(pin_number, duty_cycle);  // Calculate and set the duty cycle.
