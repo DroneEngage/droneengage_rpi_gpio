@@ -5,6 +5,7 @@
 
 #include "../helpers/helpers.hpp"
 #include "gpio_facade.hpp"
+#include "gpio_driver.hpp"
 
 using namespace de::gpio;
 
@@ -32,6 +33,11 @@ void CGPIO_Facade::API_sendGPIOStatus(const std::string&target_party_id, const b
         if (!gpio.pin_name.empty())
         {
             json_gpio["n"] =  gpio.pin_name;
+        }
+        
+        if (gpio.pin_mode == PWM_OUTPUT)
+        {
+            json_gpio["d"] =  gpio.pin_pwm_width;
         }
         
         json_array.push_back(json_gpio);
@@ -73,6 +79,11 @@ void CGPIO_Facade::API_sendSingleGPIOStatus(const std::string&target_party_id, c
     if (!gpio.pin_name.empty())
     {
         json_gpio["n"] =  gpio.pin_name;
+    }
+
+    if (gpio.pin_mode == PWM_OUTPUT)
+    {
+        json_gpio["d"] =  gpio.pin_pwm_width;
     }
         
     json_array.push_back(json_gpio);

@@ -1,8 +1,6 @@
 #include <iostream>
 #ifdef TEST_MODE_NO_WIRINGPI_LINK
 void wiringPiSetup(){}
-#define OUTPUT 0
-#define INPUT 1
 #else
 #include <wiringPi.h>
 #endif
@@ -61,6 +59,11 @@ bool CGPIODriver::initGPIOFromConfigFile()
                 gpio.pin_value = pin["value"];          
             }
 
+            if (pin.contains("width"))
+            {
+                gpio.pin_pwm_width = pin["width"];
+            }
+
             if (pin.contains("name"))
             {
                 gpio.pin_name = pin["name"].get<std::string>();
@@ -90,6 +93,11 @@ void CGPIODriver::configurePort(const GPIO & gpio)
     if (gpio.pin_mode == OUTPUT)
     {
         writePin(gpio.pin_number, gpio.pin_value);
+    }
+
+    else if (gpio.pin_mode == PWM_OUTPUT)
+    {
+        writePWM(gpio.pin_number, gpio.pin_value, gpio.pin_pwm_width);
     }
 
     // add node to list.
@@ -128,6 +136,13 @@ void CGPIODriver::setPinMode (uint pin_number, uint pin_mode)
     return ;
     #else
     pinMode (pin_number, pin_mode);
+    if (pin_mode == OUTPUT)
+    {
+        pullUpDnControl(pin_number, PUD_DOWN);
+    }
+
+    pullUpDnControl(butPin, PUD_UP); // Enable pull-up resistor on button
+
     #endif
 }
             
@@ -237,6 +252,45 @@ void CGPIODriver::removeGPIOByNumber (uint pin_number)
     return ;
 }
 
+void CGPIODriver::writePWM(const uint pin_number, int freq, int duty_cycle)
+{
+    const GPIO* gpio = getGPIOByNumber(pin_number);
+    if (!gpio || gpio->pin_mode != PWM_OUTPUT) {
+        std::cerr << _ERROR_CONSOLE_TEXT_ << "Error: Invalid pin or not configured for PWM output." << _NORMAL_CONSOLE_TEXT_ << std::endl;
+        return;
+    }
+
+    if (freq <= 0 )
+    {
+        std::cerr << _ERROR_CONSOLE_TEXT_ << "Error: Invalid frequency, should be > 0" << _NORMAL_CONSOLE_TEXT_ << std::endl;
+        return;
+    }
+    #define MAX_PWM 1024 
+    if (duty_cycle > MAX_PWM) duty_cycle = MAX_PWM;
+    if (duty_cycle < 0 ) duty_cycle = 0;
+    
+    // Set PWM frequency (adjust range as needed)
+    //  This example uses a simplified approach.  For more precise
+    //  frequency control, especially at lower frequencies, consider using
+    //  a hardware timer if your platform supports it.
+    //
+    //  The range of the `pwmSetRange` and the value passed to `pwmWrite`
+    //  determine the resolution of the PWM signal.  A larger range
+    //  gives finer control over the duty cycle.
+    #ifdef TEST_MODE_NO_WIRINGPI_LINK
+        std::cout << _INFO_CONSOLE_TEXT << ":writePWM:pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_number 
+            << _INFO_CONSOLE_TEXT << ":freq:" << _LOG_CONSOLE_BOLD_TEXT << freq 
+            << _INFO_CONSOLE_TEXT << ":duty_cycle:" << _LOG_CONSOLE_BOLD_TEXT << duty_cycle << _NORMAL_CONSOLE_TEXT_ << std::endl;
+    #else
+    pwmSetMode(PWM_MODE_MS); // Example: Using Mark:Space mode.  Experiment with other modes.
+    pwmSetRange(MAX_PWM); // Example range. Adjust as needed.
+    pwmWrite(pin_number, duty_cycle);  // Calculate and set the duty cycle.
+    #endif
+    std::cout << _SUCCESS_CONSOLE_BOLD_TEXT_ << "PWM set on Pin Number: " << _INFO_CONSOLE_BOLD_TEXT << pin_number 
+                    << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", Frequency: " << _INFO_CONSOLE_BOLD_TEXT  << freq
+                    << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", duty_cycle: " << _INFO_CONSOLE_BOLD_TEXT << duty_cycle
+                    << std::endl;
+}
             
 
         

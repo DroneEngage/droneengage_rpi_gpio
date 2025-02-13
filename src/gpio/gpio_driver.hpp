@@ -18,6 +18,13 @@ typedef enum {
     SYSTEM      = 1
 } ENUM_GPIO_TYPE;
 
+
+#ifdef TEST_MODE_NO_WIRINGPI_LINK
+#define OUTPUT 0
+#define INPUT 1
+#define PWM_OUTPUT 2
+#endif
+
 /**
     * 
     * *    INPUT			        0
@@ -36,6 +43,7 @@ typedef struct GPIO{
         uint pin_number;
         uint pin_mode;
         int pin_value;
+        uint pin_pwm_width;
         ENUM_GPIO_TYPE gpio_type;
         std::string pin_name;
     } GPIO;
@@ -83,6 +91,7 @@ class CGPIODriver
             void setPinMode (uint pin_number, uint pin_mode);
             int readPin (uint pin_number);
             void writePin (uint pin_number, uint pin_value);
+            void writePWM(const uint pin_number, int freq, int duty_cycle);
 
             const std::vector<GPIO> getGPIOStatus () const; 
 
@@ -90,6 +99,7 @@ class CGPIODriver
             const GPIO* getGPIOByName (const std::string& pin_name) const;
 
             void changeGPIOByNumber (uint pin_number, uint pin_value);
+            
             
         private:
 

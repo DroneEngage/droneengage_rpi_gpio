@@ -130,8 +130,18 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                             // gpio name
                             gpio = cGPIODriver.getGPIOByName(cmd["n"].get<std::string>());
                             if (gpio == nullptr) return ; // gpio is not defined.
-                            if (gpio->pin_value != value) trigger_event = true;
-                            cGPIODriver.writePin(gpio->pin_number, value);
+                            if (gpio->pin_mode == INPUT)
+                            {
+                                if (gpio->pin_value != value) trigger_event = true;
+                                cGPIODriver.writePin(gpio->pin_number, value);
+                            }
+                            else if (gpio->pin_mode == PWM_OUTPUT)
+                            {
+                                if (!cmd.contains("d")) return ;// pwm width
+                                const int pwm_width = cmd["d"].get<int>();
+                        
+                                cGPIODriver.writePWM(gpio->pin_number, value, pwm_width);
+                            }
                         }
                         else
                         if (cmd.contains("p"))
@@ -139,8 +149,18 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                             // gpio name
                             gpio = cGPIODriver.getGPIOByNumber(cmd["p"].get<int>());
                             if (gpio == nullptr) return ; // gpio is not defined.
-                            if (gpio->pin_value != value) trigger_event = true;
-                            cGPIODriver.writePin(gpio->pin_number, value);
+                            if (gpio->pin_mode == INPUT)
+                            {
+                                if (gpio->pin_value != value) trigger_event = true;
+                                cGPIODriver.writePin(gpio->pin_number, value);
+                            }
+                            else if (gpio->pin_mode == PWM_OUTPUT)
+                            {
+                                if (!cmd.contains("d")) return ;// pwm width
+                                const int pwm_width = cmd["d"].get<int>();
+                        
+                                cGPIODriver.writePWM(gpio->pin_number, value, pwm_width);
+                            }
                         }
 
                         // Send updated GPIO Status
