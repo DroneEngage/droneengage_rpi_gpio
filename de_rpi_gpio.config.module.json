@@ -41,22 +41,23 @@
       },
     */
     {
-      "gpio": 7,
+      "gpio": 2,
       "mode": 1,
       "value": 1,
       "gpio_type": 1,
       "name": "power_led"
     },
     {
-      "gpio": 11,
+      "gpio": 3,
       "mode": 1,
       "value": 1,
       "name": "camera_flash"
     },
     {
-      "gpio": 12,
-      "mode": 1,
-      "value": 1
+      "gpio": 18,
+      "mode": 2,
+      "value": 100,
+      "width": 1000
     }
   ]
 }

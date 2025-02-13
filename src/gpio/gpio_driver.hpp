@@ -42,7 +42,7 @@ typedef enum {
 typedef struct GPIO{
         uint pin_number;
         uint pin_mode;
-        int pin_value;
+        uint pin_value;
         uint pin_pwm_width;
         ENUM_GPIO_TYPE gpio_type;
         std::string pin_name;
@@ -91,14 +91,14 @@ class CGPIODriver
             void setPinMode (uint pin_number, uint pin_mode);
             int readPin (uint pin_number);
             void writePin (uint pin_number, uint pin_value);
-            void writePWM(const uint pin_number, int freq, int duty_cycle);
+            void writePWM(const uint pin_number, uint freq, uint pin_pwm_width);
 
             const std::vector<GPIO> getGPIOStatus () const; 
 
             const GPIO* getGPIOByNumber (uint pin_number) const;
             const GPIO* getGPIOByName (const std::string& pin_name) const;
 
-            void changeGPIOByNumber (uint pin_number, uint pin_value);
+            void changeGPIOByNumber (uint pin_number, uint pin_value, uint pin_pwm_width);
             
             
         private:

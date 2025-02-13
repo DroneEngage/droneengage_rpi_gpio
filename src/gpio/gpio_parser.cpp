@@ -144,7 +144,8 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                             {
                                 if (!cmd.contains("d")) return ;// pwm width
                                 const int pwm_width = cmd["d"].get<int>();
-                        
+                                if (gpio->pin_pwm_width != pwm_width) trigger_event = true;
+                                
                                 cGPIODriver.writePWM(gpio->pin_number, value, pwm_width);
                             }
                         }
@@ -163,7 +164,8 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                             {
                                 if (!cmd.contains("d")) return ;// pwm width
                                 const int pwm_width = cmd["d"].get<int>();
-                        
+                                if (gpio->pin_pwm_width != pwm_width) trigger_event = true;
+                                
                                 cGPIODriver.writePWM(gpio->pin_number, value, pwm_width);
                             }
                         }

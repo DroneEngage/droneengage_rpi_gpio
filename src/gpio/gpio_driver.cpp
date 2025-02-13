@@ -169,7 +169,7 @@ void CGPIODriver::writePin(uint pin_number, uint pin_value)
     const GPIO* gpio = getGPIOByNumber(pin_number);
     if (gpio) 
     {
-        changeGPIOByNumber (pin_number, pin_value);
+        changeGPIOByNumber (pin_number, pin_value, gpio->pin_pwm_width);
         
         #ifdef DEBUG
         std::cout << _INFO_CONSOLE_TEXT << ":writePin:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _INFO_CONSOLE_TEXT << ":pin_value:" << _LOG_CONSOLE_BOLD_TEXT << pin_value << _NORMAL_CONSOLE_TEXT_ << std::endl;
@@ -200,12 +200,13 @@ const GPIO* CGPIODriver::getGPIOByNumber(uint pin_number) const
 }
 
 
-void CGPIODriver::changeGPIOByNumber (uint pin_number, uint pin_value) 
+void CGPIODriver::changeGPIOByNumber (uint pin_number, uint pin_value, uint pin_pwm_width) 
 {
     GPIO* gpio = _getGPIOByNumber (pin_number);
     if (gpio)
     {
         gpio->pin_value = pin_value;
+        gpio->pin_pwm_width = pin_pwm_width;
     }
 }
 
@@ -255,7 +256,7 @@ void CGPIODriver::removeGPIOByNumber (uint pin_number)
     return ;
 }
 
-void CGPIODriver::writePWM(const uint pin_number, int freq, int duty_cycle)
+void CGPIODriver::writePWM(const uint pin_number, uint freq, uint pin_pwm_width)
 {
     const GPIO* gpio = getGPIOByNumber(pin_number);
     if (!gpio || gpio->pin_mode != PWM_OUTPUT) {
@@ -269,8 +270,8 @@ void CGPIODriver::writePWM(const uint pin_number, int freq, int duty_cycle)
         return;
     }
     #define MAX_PWM 1024 
-    if (duty_cycle > MAX_PWM) duty_cycle = MAX_PWM;
-    if (duty_cycle < 0 ) duty_cycle = 0;
+    if (pin_pwm_width > MAX_PWM) pin_pwm_width = MAX_PWM;
+    if (pin_pwm_width < 0 ) pin_pwm_width = 0;
     
     // Set PWM frequency (adjust range as needed)
     //  This example uses a simplified approach.  For more precise
@@ -283,16 +284,19 @@ void CGPIODriver::writePWM(const uint pin_number, int freq, int duty_cycle)
     #ifdef DEBUG
         std::cout << _INFO_CONSOLE_TEXT << ":writePWM:pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_number 
             << _INFO_CONSOLE_TEXT << ":freq:" << _LOG_CONSOLE_BOLD_TEXT << freq 
-            << _INFO_CONSOLE_TEXT << ":duty_cycle:" << _LOG_CONSOLE_BOLD_TEXT << duty_cycle << _NORMAL_CONSOLE_TEXT_ << std::endl;
+            << _INFO_CONSOLE_TEXT << ":pin_pwm_width:" << _LOG_CONSOLE_BOLD_TEXT << pin_pwm_width << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
     #ifndef TEST_MODE_NO_WIRINGPI_LINK
     pwmSetMode(PWM_MODE_MS); // Example: Using Mark:Space mode.  Experiment with other modes.
     pwmSetRange(MAX_PWM); // Example range. Adjust as needed.
-    pwmWrite(pin_number, duty_cycle);  // Calculate and set the duty cycle.
+    pwmWrite(pin_number, pin_pwm_width);  // Calculate and set the duty cycle.
     #endif
+
+    changeGPIOByNumber (pin_number, gpio->pin_value, pin_pwm_width);
+        
     std::cout << _SUCCESS_CONSOLE_BOLD_TEXT_ << "PWM set on Pin Number: " << _INFO_CONSOLE_BOLD_TEXT << pin_number 
                     << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", Frequency: " << _INFO_CONSOLE_BOLD_TEXT  << freq
-                    << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", duty_cycle: " << _INFO_CONSOLE_BOLD_TEXT << duty_cycle
+                    << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", pin_pwm_width: " << _INFO_CONSOLE_BOLD_TEXT << pin_pwm_width
                     << std::endl;
 }
             
