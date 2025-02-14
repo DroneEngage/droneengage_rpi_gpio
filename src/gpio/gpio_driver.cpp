@@ -1,6 +1,6 @@
 #include <iostream>
 #ifdef TEST_MODE_NO_WIRINGPI_LINK
-void wiringPiSetup(){}
+void wiringPiSetupGpio(){}
 #else
 #include <wiringPi.h>
 #endif
@@ -116,7 +116,7 @@ bool CGPIODriver::init()
 {
     m_gpio_array.clear();
 
-    wiringPiSetup () ;
+    wiringPiSetupGpio () ;
   
     initGPIOFromConfigFile();
     
