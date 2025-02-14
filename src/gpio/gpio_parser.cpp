@@ -135,7 +135,7 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                             // gpio name
                             gpio = cGPIODriver.getGPIOByName(cmd["n"].get<std::string>());
                             if (gpio == nullptr) return ; // gpio is not defined.
-                            if (gpio->pin_mode == INPUT)
+                            if (gpio->pin_mode == OUTPUT)
                             {
                                 if (gpio->pin_value != value) trigger_event = true;
                                 cGPIODriver.writePin(gpio->pin_number, value);
@@ -155,9 +155,9 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                             // gpio name
                             gpio = cGPIODriver.getGPIOByNumber(cmd["p"].get<int>());
                             if (gpio == nullptr) return ; // gpio is not defined.
-                            if (gpio->pin_mode == INPUT)
+                            if (gpio->pin_value != value) trigger_event = true;
+                            if (gpio->pin_mode == OUTPUT)
                             {
-                                if (gpio->pin_value != value) trigger_event = true;
                                 cGPIODriver.writePin(gpio->pin_number, value);
                             }
                             else if (gpio->pin_mode == PWM_OUTPUT)

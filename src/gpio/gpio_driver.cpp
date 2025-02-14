@@ -288,11 +288,14 @@ void CGPIODriver::writePWM(const uint pin_number, uint freq, uint pin_pwm_width)
     #endif
     #ifndef TEST_MODE_NO_WIRINGPI_LINK
     pwmSetMode(PWM_MODE_MS); // Example: Using Mark:Space mode.  Experiment with other modes.
+    uint32_t baseClock = 19200000; // Base clock frequency for Raspberry Pi PWM
+    uint32_t range = baseClock / freq / MAX_PWM;
+    pwmSetClock(range);
     pwmSetRange(MAX_PWM); // Example range. Adjust as needed.
     pwmWrite(pin_number, pin_pwm_width);  // Calculate and set the duty cycle.
     #endif
 
-    changeGPIOByNumber (pin_number, gpio->pin_value, pin_pwm_width);
+    changeGPIOByNumber (pin_number, freq, pin_pwm_width);
         
     std::cout << _SUCCESS_CONSOLE_BOLD_TEXT_ << "PWM set on Pin Number: " << _INFO_CONSOLE_BOLD_TEXT << pin_number 
                     << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", Frequency: " << _INFO_CONSOLE_BOLD_TEXT  << freq

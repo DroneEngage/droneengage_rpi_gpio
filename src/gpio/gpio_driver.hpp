@@ -20,8 +20,8 @@ typedef enum {
 
 
 #ifdef TEST_MODE_NO_WIRINGPI_LINK
-#define OUTPUT 0
-#define INPUT 1
+#define INPUT 0
+#define OUTPUT 1
 #define PWM_OUTPUT 2
 #endif
 
