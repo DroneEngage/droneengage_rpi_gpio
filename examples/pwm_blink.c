@@ -27,7 +27,7 @@ int main(int argc, char *argv) {
         // Set PWM duty cycle:
         pwmWrite(PWM_PIN, dutyCycleValue); 
         printf("PWM ON (Duty Cycle: %d%%)\n", DUTY_CYCLE_PERCENT);
-        delay(1500);
+        delay(5000);
 
         // Turn PWM off (0 duty cycle):
         pwmWrite(PWM_PIN, 0);  // Or just set to 0
