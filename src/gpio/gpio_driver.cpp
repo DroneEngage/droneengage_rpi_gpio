@@ -34,8 +34,7 @@ bool CGPIODriver::initGPIOFromConfigFile()
         const Json_de  pins = m_jsonConfig["pins"];
 
         
-        size_t pin_count = pins.size();
-        if (pin_count <= 0)
+        if (pins.empty())
         {
             std::cout << _INFO_CONSOLE_BOLD_TEXT <<  "No pins to preconfigure!" << _NORMAL_CONSOLE_TEXT_ << std::endl;
         }
@@ -43,15 +42,31 @@ bool CGPIODriver::initGPIOFromConfigFile()
         for (const auto& pin : pins) {
             GPIO gpio;
             
+            // Ensure required fields are present
+            if (!pin.contains("gpio") || !pin.contains("mode"))
+            {
+                std::cerr << _ERROR_CONSOLE_TEXT_ << "Error: Missing required fields 'gpio' or 'mode' in pin configuration." << _NORMAL_CONSOLE_TEXT_ << std::endl;
+                continue;
+            }
+
             gpio.pin_number = pin["gpio"].get<int>();         // First element
             gpio.pin_mode = pin["mode"].get<int>();           // Second element
-            gpio.pin_value =  0;
+            gpio.pin_value =  0; // Default value, can be overridden below
             gpio.pin_name = "";
             gpio.gpio_type = ENUM_GPIO_TYPE::GENERIC;
 
             if (pin.contains("gpio_type"))
             {
-                gpio.gpio_type = static_cast<de::gpio::ENUM_GPIO_TYPE>(pin["gpio_type"]);
+                int gpio_type_value = pin["gpio_type"].get<int>();
+                if (gpio_type_value >= 0 && gpio_type_value < static_cast<int>(ENUM_GPIO_TYPE::COUNT))
+                {
+                    gpio.gpio_type = static_cast<ENUM_GPIO_TYPE>(gpio_type_value);
+                }
+                else
+                {
+                    std::cerr << _ERROR_CONSOLE_TEXT_ << "Error: Invalid gpio_type value for pin " << gpio.pin_number << _NORMAL_CONSOLE_TEXT_ << std::endl;
+                    continue;
+                }
             }
             
             if (pin.contains("value") && (gpio.pin_mode != INPUT))
@@ -85,24 +100,33 @@ bool CGPIODriver::initGPIOFromConfigFile()
 
 void CGPIODriver::configurePort(const GPIO & gpio)
 {
+    // Validate pin number
+    if (gpio.pin_number > 53) // Raspberry Pi GPIO pins are 0-53
+    {
+        std::cerr << _ERROR_CONSOLE_TEXT_ << "Error: Invalid pin number " << gpio.pin_number << _NORMAL_CONSOLE_TEXT_ << std::endl;
+        return;
+    }
+
     // remove node if exists from list.
     removeGPIOByNumber(gpio.pin_number);
 
-    setPinMode (gpio.pin_number, gpio.pin_mode);
+    // Set the pin mode
+    setPinMode(gpio.pin_number, gpio.pin_mode);
+    
+    // add node to list.
+    m_gpio_array.push_back(gpio);
 
+    // Handle OUTPUT and PWM_OUTPUT modes
     if (gpio.pin_mode == OUTPUT)
     {
         writePin(gpio.pin_number, gpio.pin_value);
     }
-
     else if (gpio.pin_mode == PWM_OUTPUT)
     {
         writePWM(gpio.pin_number, gpio.pin_value, gpio.pin_pwm_width);
     }
 
-    // add node to list.
-    m_gpio_array.push_back(gpio);
-
+    
     // Output the values
     std::cout << _SUCCESS_CONSOLE_BOLD_TEXT_ << "Pin Number: " << _INFO_CONSOLE_BOLD_TEXT << gpio.pin_number 
                     << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", Mode: " << _INFO_CONSOLE_BOLD_TEXT  << gpio.pin_mode 
@@ -132,7 +156,7 @@ bool CGPIODriver::uninit()
 void CGPIODriver::setPinMode (uint pin_number, uint pin_mode)
 {
     #ifdef DEBUG
-    std::cout << _INFO_CONSOLE_TEXT << ":setPinMode:pin_number" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _INFO_CONSOLE_TEXT << ":pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_mode << _NORMAL_CONSOLE_TEXT_ << std::endl;
+    std::cout << _INFO_CONSOLE_TEXT << ":setPinMode:pin_number" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _INFO_CONSOLE_TEXT << ":pin_mode:" << _LOG_CONSOLE_BOLD_TEXT << pin_mode << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
     
     #ifndef TEST_MODE_NO_WIRINGPI_LINK

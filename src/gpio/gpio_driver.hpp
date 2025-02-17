@@ -15,7 +15,8 @@ namespace gpio
 
 typedef enum {
     GENERIC     = 0,
-    SYSTEM      = 1
+    SYSTEM      = 1,
+    COUNT       = 2   // Total number of valid GPIO types
 } ENUM_GPIO_TYPE;
 
 
