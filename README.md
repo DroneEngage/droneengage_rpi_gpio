@@ -10,6 +10,36 @@
 DroneEngage-RPI-GPIO is a Drone Engage plugin module that enables DroneEngage to control GPIO ports of RPI.
 The module uses RPI GPIO as on-off ports to controll leds, buzzer, motors ...etc.
 
+ 
+
+# Build the Code
+
+**Prerequisits**
+
+    sudo apt update
+    
+    sudo apt install git
+    
+    sudo apt install cmake
+   
+    sudo apt-get install libcurl4-openssl-dev
+   
+    sudo apt-get install libssl-dev
+    
+    cd ~
+
+    git clone https://github.com/DroneEngage/droneengage_rpi_gpio.git
+    
+    cd droneengage_rpi_gpio
+    
+    
+
+    
+    
+    
+      
+      
+    
 # Configuration File
 
 *de_rpi_gpio.config.module.json* is used to define ports.
