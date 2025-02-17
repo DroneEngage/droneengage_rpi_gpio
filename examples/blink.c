@@ -11,7 +11,7 @@ int main (int argc, char *argv [])
     
   wiringPiSetupGpio();
   pinMode(LED, OUTPUT);
-  pullUpDnControl(pin_number, PUD_DOWN);
+  pullUpDnControl(LED, PUD_DOWN);
   for (;;)
   {
     digitalWrite (LED, HIGH) ;	// On
