@@ -22,22 +22,31 @@ The module uses RPI GPIO as on-off ports to controll leds, buzzer, motors ...etc
     
     sudo apt install cmake
    
-    sudo apt-get install libcurl4-openssl-dev
-   
-    sudo apt-get install libssl-dev
+    cd ~
     
+    git clone https://github.com/HefnySco/WiringPi.git
+    
+    cd ~/WiringPi
+    
+    ./build
+
     cd ~
 
     git clone https://github.com/DroneEngage/droneengage_rpi_gpio.git
     
     cd droneengage_rpi_gpio
     
-    
+    mkdir build
+    cd build
+    cmake -D CMAKE_BUILD_TYPE=DEBUG  -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON   ../
+    make 
 
-    
-    
-    
-      
+
+To compile on your laptop without linking to wiringpi you can use
+
+
+    cmake -D CMAKE_BUILD_TYPE=DEBUG  -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON  -DTEST_MODE_NO_WIRINGPI_LINK=ON ../
+
       
     
 # Configuration File
