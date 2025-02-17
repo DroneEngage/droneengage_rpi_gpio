@@ -157,7 +157,7 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                             // PWM mode requires PWM width
                             if (!cmd.contains("d")) return;
 
-                            const int pwm_width = cmd["d"].get<int>();
+                            const uint pwm_width = cmd["d"].get<uint>();
                             if (gpio->pin_pwm_width != pwm_width) trigger_event = true;
 
                             cGPIODriver.writePWM(gpio->pin_number, value, pwm_width);
