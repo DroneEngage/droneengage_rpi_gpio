@@ -2,7 +2,6 @@
 #include "../helpers/helpers.hpp"
 #include "gpio_parser.hpp"
 #include "gpio_facade.hpp"
-#include "gpio_driver.hpp"
 #include "gpio_main.hpp"
 
 using namespace de::gpio;
@@ -67,7 +66,6 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
         
                 if (!cmd.contains("a") || !cmd["a"].is_number_integer()) return ;
                     
-                CGPIODriver& cGPIODriver  = CGPIODriver::getInstance();                    
                 
 
                 switch (cmd["a"].get<int>())
@@ -107,7 +105,7 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                         {
                             gpio.pin_name = cmd["n"].get<int>();
                         }
-                        cGPIODriver.configurePort (gpio);
+                        m_gpio_driver.configurePort (gpio);
 
                         // Send updated GPIO Status
                         CGPIO_Facade::getInstance().API_sendGPIOStatus("", true);
@@ -123,8 +121,6 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                          * 'v': value           // mandatory
                          */
 
-                        CGPIODriver& cGPIODriver  = CGPIODriver::getInstance();
-                        
                         // Mandatory value check
                         if (!cmd.contains("v")) return;
 
@@ -135,10 +131,10 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                         const GPIO* gpio = nullptr;
                         if (cmd.contains("n")) {
                             // Priority for named GPIO
-                            gpio = cGPIODriver.getGPIOByName(cmd["n"].get<std::string>());
+                            gpio = m_gpio_driver.getGPIOByName(cmd["n"].get<std::string>());
                         } else if (cmd.contains("p")) {
                             // Fallback to GPIO number
-                            gpio = cGPIODriver.getGPIOByNumber(cmd["p"].get<int>());
+                            gpio = m_gpio_driver.getGPIOByNumber(cmd["p"].get<uint>());
                         }
 
                         // Validate GPIO
@@ -152,7 +148,7 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                         // Handle GPIO write based on mode
                         if (gpio->pin_mode == OUTPUT) {
                             if (gpio->pin_value != value) trigger_event = true;
-                            cGPIODriver.writePin(gpio->pin_number, value);
+                            m_gpio_driver.writePin(gpio->pin_number, value);
                         } else if (gpio->pin_mode == PWM_OUTPUT) {
                             // PWM mode requires PWM width
                             if (!cmd.contains("d")) return;
@@ -160,7 +156,7 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                             const uint pwm_width = cmd["d"].get<uint>();
                             if (gpio->pin_pwm_width != pwm_width) trigger_event = true;
 
-                            cGPIODriver.writePWM(gpio->pin_number, value, pwm_width);
+                            m_gpio_driver.writePWM(gpio->pin_number, value, pwm_width);
                         }
                         
 
@@ -199,7 +195,19 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                 {
 
                     case TYPE_AndruavMessage_GPIO_STATUS:
+                        if (cmd.contains("p")) {
+                            const GPIO* gpio = nullptr;
+                            gpio = m_gpio_driver.getGPIOByNumber(cmd["p"].get<uint>());
+                            if (gpio!= nullptr) 
+                            {
+                                CGPIO_Facade::getInstance().API_sendSingleGPIOStatus("", *gpio, false);
+                                break;
+                            }
+                            // if pin number is not found then send all GPIO status
+                        }
+
                         CGPIO_Facade::getInstance().API_sendGPIOStatus("", true);
+
                     break;
 
                     default:

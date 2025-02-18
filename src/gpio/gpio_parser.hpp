@@ -5,6 +5,7 @@
 using Json_de = nlohmann::json;
 
 #include "gpio_facade.hpp"
+#include "gpio_driver.hpp"
 
 namespace de
 {
@@ -55,6 +56,8 @@ namespace gpio
 
         private:
             de::gpio::CGPIO_Facade& m_gpio_facade = de::gpio::CGPIO_Facade::getInstance();
+            de::gpio::CGPIODriver& m_gpio_driver  = de::gpio::CGPIODriver::getInstance();                    
+                
     };
 
 }
