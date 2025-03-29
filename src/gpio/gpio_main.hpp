@@ -53,7 +53,7 @@ namespace gpio
         
         public:
             
-            bool init ();
+            bool init (const std::string& module_key);
             bool uninit ();
             void loopScheduler();
 
@@ -70,12 +70,24 @@ namespace gpio
                 m_group_id = group_id;
             };
 
+            
+            /**
+             * @brief Get the ModuleKey 
+             * 
+             * @return const std::string& 
+             */
+            inline const std::string& getModuleKey () const
+            {
+                return m_module_key;
+            };  
+
 
         private:
 
             u_int64_t m_counter = 0;
             std::thread m_scheduler_thread;
 
+            std::string m_module_key;
             std::string m_party_id;
             std::string m_group_id;
 

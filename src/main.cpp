@@ -275,7 +275,7 @@ void init (int argc, char *argv[])
         cLocalConfigFile.apply();
     }
 
-    cGPIOMain.init();
+    cGPIOMain.init(ModuleKey);
     
     // should be last
     initDEModule (argc,argv);

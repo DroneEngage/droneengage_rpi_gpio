@@ -1,0 +1,67 @@
+{ 
+  // A name and GUID for this module as multiple modules sometimes can be added.
+  "module_id": "GPIO2", 
+  
+  // IP & Port Communication Module is listening to.
+  "s2s_udp_target_ip": "127.0.0.1",
+  "s2s_udp_target_port": "60000", 
+  // IP & Port of this module
+  "s2s_udp_listening_ip": "127.0.0.1", 
+  "s2s_udp_listening_port": "61026", 
+  "s2s_udp_packet_size": "8192",
+  
+
+  "pins":
+  [
+    /* GPIO-Mode
+    	INPUT			         0
+    	OUTPUT			       1
+    	PWM_OUTPUT		     2
+    	PWM_MS_OUTPUT	     8
+    	PWM_BAL_OUTPUT     9
+    	GPIO_CLOCK		     3
+    	SOFT_PWM_OUTPUT		 4
+    	SOFT_TONE_OUTPUT	 5
+    	PWM_TONE_OUTPUT		 6
+    	PM_OFF		         7   // to input / release line
+    
+
+      GPIO-Type
+      GENERIC            0
+      SYSTEM             1
+      
+
+    
+
+      {
+        "gpio": 7,            // mandatory
+        "mode": 1,            // mandatory
+        "value": 1,           // OPTIONAL and ignored if pin mode is input.
+        "name": "power_led",  // OPTIONAL
+      },
+    */
+    {
+      "gpio": 2,
+      "mode": 1,
+      "value": 1,
+      "gpio_type": 1,
+      "name": "power_led2"
+    },
+    {
+      "gpio": 3,
+      "mode": 1,
+      "value": 1,
+      "name": "camera_flash2"
+    },
+    {
+      "gpio": 18,
+      "name": "external",
+      "mode": 2,
+      "value": 100,
+      "width": 1000
+    }
+  ]
+}
+
+
+

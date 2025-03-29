@@ -64,6 +64,17 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
 
                 const Json_de cmd = andruav_message[ANDRUAV_PROTOCOL_MESSAGE_CMD];
         
+                if (!cmd.contains("i")) return ; // no module key defined
+
+                const std::string module_key = cmd["i"].get<std::string>(); 
+                
+                de::gpio::CGPIOMain& cGPIOMain = de::gpio::CGPIOMain::getInstance();
+                if (module_key != cGPIOMain.getModuleKey())
+                {
+                    // Module key mismatch
+                    return;
+                }
+
                 if (!cmd.contains("a") || !cmd["a"].is_number_integer()) return ;
                     
                 
