@@ -26,7 +26,7 @@ void de::gpio::CGPIOMain::loopScheduler()
             {   // each 1000 msec
                 CGPIO_Facade::getInstance().API_sendGPIOStatus("", true);
             }
-            if (m_counter%1000 ==0)
+            if (m_counter%10000 ==0)
             {   // each 10000 msec
                 CGPIO_Facade::getInstance().API_sendGPIOStatus("", false);
                 
