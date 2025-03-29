@@ -41,9 +41,10 @@ void de::gpio::CGPIOMain::loopScheduler()
     return ;
 }
 
-bool de::gpio::CGPIOMain::init()
+bool de::gpio::CGPIOMain::init(const std::string& module_key)
 {
-    
+    m_module_key = module_key;
+
     m_gpio_driver.init();
     
     m_exit_thread = false; 

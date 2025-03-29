@@ -11,8 +11,11 @@
 #include "../helpers/helpers.hpp"
 #include "gpio_facade.hpp"
 #include "gpio_driver.hpp"
-
+#include "gpio_main.hpp"
 using namespace de::gpio;
+
+de::gpio::CGPIOMain& m_cGPIOMain = de::gpio::CGPIOMain::getInstance();
+
 
 void CGPIO_Facade::API_sendGPIOStatus(const std::string&target_party_id, const bool internal) const
 {
@@ -28,6 +31,8 @@ void CGPIO_Facade::API_sendGPIOStatus(const std::string&target_party_id, const b
         const GPIO& gpio = gpios[i];
 
         Json_de json_gpio = {
+            {"i", m_cGPIOMain.getModuleKey()},
+            {"p", gpio.pin_number},
             {"b", gpio.pin_number},
             {"m", gpio.pin_mode},
             {"t", gpio.gpio_type},
@@ -75,6 +80,7 @@ void CGPIO_Facade::API_sendSingleGPIOStatus(const std::string&target_party_id, c
     Json_de json_array = Json_de::array();
 
     Json_de json_gpio = {
+        {"i", m_cGPIOMain.getModuleKey()},
         {"b", gpio.pin_number},
         {"m", gpio.pin_mode},
         {"t", gpio.gpio_type},
