@@ -206,7 +206,7 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                             // if pin number is not found then send all GPIO status
                         }
 
-                        CGPIO_Facade::getInstance().API_sendGPIOStatus("", true);
+                        CGPIO_Facade::getInstance().API_sendGPIOStatus("", false);
 
                     break;
 
