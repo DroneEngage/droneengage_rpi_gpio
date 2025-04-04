@@ -282,7 +282,9 @@ void CGPIOParser::parseRemoteExecute (Json_de &andruav_message)
     
     const int remoteCommand = cmd["C"].get<int>();
     
+    #ifdef DEBUG
     std::cout << "cmd: " << remoteCommand << std::endl;
+    #endif 
     
     // switch (remoteCommand)
     // {
