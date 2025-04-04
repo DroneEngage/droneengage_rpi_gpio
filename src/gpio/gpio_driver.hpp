@@ -6,6 +6,7 @@
 
 #include "../helpers/json_nlohmann.hpp"
 using Json_de = nlohmann::json;
+#define MAX_PWM 1024 // The user's desired input scale and preferred PWM range
 
 
 namespace de
@@ -92,7 +93,7 @@ class CGPIODriver
             void setPinMode (uint pin_number, uint pin_mode);
             int readPin (uint pin_number);
             void writePin (uint pin_number, uint pin_value);
-            void writePWM(const uint pin_number, uint freq, uint pin_pwm_width);
+            void writePWM(const uint pin_number, double freq, uint pin_pwm_width);
 
             const std::vector<GPIO> getGPIOStatus () const; 
 
@@ -114,7 +115,16 @@ class CGPIODriver
 
             std::vector<GPIO> m_gpio_array;
 
-
+            // Base clock frequency for Raspberry Pi PWM (adjust if different)
+            const uint32_t baseClock = 19200000;
+            // Hardware limits for the clock divisor (adjust if different)
+            const uint32_t MIN_PWM_CLOCK_DIVISOR = 2;
+            const uint32_t MAX_PWM_CLOCK_DIVISOR = 4095;
+            // Although MAX_PWM is 1024 for input, hardware might support larger range
+            // Set this to the actual max supported by pwmSetRange if known and > 1024
+            // If unsure, keeping it MAX_PWM limits low frequency but ensures compatibility
+            const uint32_t MAX_HW_PWM_RANGE = 4096; // Example: Common max range
+            
     };
 }
 }

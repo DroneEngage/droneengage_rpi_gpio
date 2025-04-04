@@ -287,51 +287,153 @@ void CGPIODriver::removeGPIOByNumber (uint pin_number)
     return ;
 }
 
-void CGPIODriver::writePWM(const uint pin_number, uint freq, uint pin_pwm_width)
+void CGPIODriver::writePWM(const uint pin_number, double freq, uint pin_pwm_width)
 {
     const GPIO* gpio = getGPIOByNumber(pin_number);
     if (!gpio || gpio->pin_mode != PWM_OUTPUT) {
-        std::cerr << _ERROR_CONSOLE_TEXT_ << "Error: Invalid pin or not configured for PWM output." << _NORMAL_CONSOLE_TEXT_ << std::endl;
+        std::cerr << _ERROR_CONSOLE_TEXT_ << "Error: Invalid pin " << pin_number << " or not configured for PWM output." << _NORMAL_CONSOLE_TEXT_ << std::endl;
         return;
     }
 
-    if (freq <= 0 )
-    {
-        std::cerr << _ERROR_CONSOLE_TEXT_ << "Error: Invalid frequency, should be > 0" << _NORMAL_CONSOLE_TEXT_ << std::endl;
-        return;
+    // Validate frequency input
+    if (freq <= 0.0) {
+        // Note: Changed check to <= 0.0 as frequency can be fractional
+        // Consider adding a practical lower bound check if needed
+         if (freq == 0.0) {
+             #ifndef TEST_MODE_NO_WIRINGPI_LINK
+             // Turn PWM off completely if frequency is zero
+             pwmWrite(pin_number, 0);
+             #endif
+             changeGPIOByNumber(pin_number, 0.0, 0); // Update state
+             std::cout << _SUCCESS_CONSOLE_BOLD_TEXT_ << "PWM turned OFF on Pin Number: " << _INFO_CONSOLE_BOLD_TEXT << pin_number << std::endl;
+             return;
+         } else {
+            std::cerr << _ERROR_CONSOLE_TEXT_ << "Error: Invalid frequency (" << freq << "), should be > 0" << _NORMAL_CONSOLE_TEXT_ << std::endl;
+            return;
+         }
     }
-    #define MAX_PWM 1024 
+
+    // Clamp input duty cycle value to the expected 0-1024 range
     if (pin_pwm_width > MAX_PWM) pin_pwm_width = MAX_PWM;
-    if (pin_pwm_width < 0 ) pin_pwm_width = 0;
-    
-    // Set PWM frequency (adjust range as needed)
-    //  This example uses a simplified approach.  For more precise
-    //  frequency control, especially at lower frequencies, consider using
-    //  a hardware timer if your platform supports it.
-    //
-    //  The range of the `pwmSetRange` and the value passed to `pwmWrite`
-    //  determine the resolution of the PWM signal.  A larger range
-    //  gives finer control over the duty cycle.
+    // Input is uint, so no need to check < 0 unless type changes
+
+    uint32_t pwm_range = MAX_PWM; // Start with preferred range/resolution
+    uint32_t clock_divisor = 0;
+    double target_divisor;
+
+    // --- Calculate Clock Divisor and Adjust Range if Necessary ---
+
+    if (freq == 50.0) {
+        // Special case for Servos: Force range to MAX_PWM (1024)
+        pwm_range = MAX_PWM;
+        target_divisor = static_cast<double>(baseClock) / (freq * pwm_range);
+        clock_divisor = static_cast<uint32_t>(std::round(target_divisor));
+
+        // Clamp divisor just in case calculation yields out-of-bounds for 50Hz (unlikely)
+        if (clock_divisor < MIN_PWM_CLOCK_DIVISOR) clock_divisor = MIN_PWM_CLOCK_DIVISOR;
+        if (clock_divisor > MAX_PWM_CLOCK_DIVISOR) clock_divisor = MAX_PWM_CLOCK_DIVISOR;
+
+    } else {
+        // General case: Try to use MAX_PWM range first
+        target_divisor = static_cast<double>(baseClock) / (freq * MAX_PWM);
+
+        if (target_divisor < MIN_PWM_CLOCK_DIVISOR) {
+            // Frequency is too high for MAX_PWM range.
+            // Fix divisor to minimum and calculate required range.
+            clock_divisor = MIN_PWM_CLOCK_DIVISOR;
+            double required_range = static_cast<double>(baseClock) / (freq * clock_divisor);
+            pwm_range = static_cast<uint32_t>(std::round(required_range));
+
+             // Ensure calculated range is at least minimally useful (e.g., 2)
+             if (pwm_range < 2) pwm_range = 2;
+             // Ensure calculated range doesn't exceed hardware limits
+             if (pwm_range > MAX_HW_PWM_RANGE) pwm_range = MAX_HW_PWM_RANGE;
+
+             // Warning: Resolution is reduced for high frequencies.
+
+        } else if (target_divisor > MAX_PWM_CLOCK_DIVISOR) {
+            // Frequency is too low for MAX_PWM range.
+            // Fix divisor to maximum and calculate required range.
+            clock_divisor = MAX_PWM_CLOCK_DIVISOR;
+            double required_range = static_cast<double>(baseClock) / (freq * clock_divisor);
+            pwm_range = static_cast<uint32_t>(std::round(required_range));
+
+            // Warn if the required range exceeds the preferred input scale significantly
+            if (pwm_range > MAX_PWM * 1.1) { // Arbitrary threshold for warning
+                 // Consider adding a debug/info message here about range increase
+            }
+
+            // Ensure calculated range is at least minimally useful (e.g., 2)
+            if (pwm_range < 2) pwm_range = 2;
+            // Ensure calculated range doesn't exceed hardware limits
+            if (pwm_range > MAX_HW_PWM_RANGE) {
+                pwm_range = MAX_HW_PWM_RANGE;
+                // If we hit this limit, the actual frequency will be slightly higher than requested.
+                double actual_freq = static_cast<double>(baseClock) / (clock_divisor * pwm_range);
+                 std::cerr << _ERROR_CONSOLE_TEXT_ << "Warning: Requested frequency " << freq << " Hz is below the hardware minimum achievable (~"
+                           << actual_freq << " Hz). Setting to minimum." << _NORMAL_CONSOLE_TEXT_ << std::endl;
+                 freq = actual_freq; // Update freq variable to reflect reality
+            }
+             // Warning: Resolution might increase beyond MAX_PWM for low frequencies.
+
+
+        } else {
+            // Frequency is achievable with MAX_PWM range.
+            pwm_range = MAX_PWM;
+            clock_divisor = static_cast<uint32_t>(std::round(target_divisor));
+            // No need to clamp divisor here as it's already within bounds by definition
+        }
+    }
+
+    // --- Calculate final PWM value based on scaled input ---
+    // Scale the input width (0-1024) to the calculated pwm_range
+    // Use floating point for intermediate calculation for accuracy
+    double scaled_value_f = static_cast<double>(pin_pwm_width) * pwm_range / MAX_PWM;
+    uint32_t pwm_value = static_cast<uint32_t>(std::round(scaled_value_f));
+
+    // Clamp final value just in case of rounding errors near the boundary
+    if (pwm_value > pwm_range) pwm_value = pwm_range;
+    // Value is unsigned, minimum is 0
+
+
     #ifdef DEBUG
-        std::cout << _INFO_CONSOLE_TEXT << ":writePWM:pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_number 
-            << _INFO_CONSOLE_TEXT << ":freq:" << _LOG_CONSOLE_BOLD_TEXT << freq 
-            << _INFO_CONSOLE_TEXT << ":pin_pwm_width:" << _LOG_CONSOLE_BOLD_TEXT << pin_pwm_width << _NORMAL_CONSOLE_TEXT_ << std::endl;
-    #endif
-    #ifndef TEST_MODE_NO_WIRINGPI_LINK
-    pwmSetMode(PWM_MODE_MS); // Example: Using Mark:Space mode.  Experiment with other modes.
-    uint32_t baseClock = 19200000; // Base clock frequency for Raspberry Pi PWM
-    uint32_t range = baseClock / freq / MAX_PWM;
-    pwmSetClock(range);
-    pwmSetRange(MAX_PWM); // Example range. Adjust as needed.
-    pwmWrite(pin_number, pin_pwm_width);  // Calculate and set the duty cycle.
+        // More detailed debug output
+        std::cout << _INFO_CONSOLE_TEXT << ":writePWM:pin:" << _LOG_CONSOLE_BOLD_TEXT << pin_number
+            << _INFO_CONSOLE_TEXT << ":req_freq:" << _LOG_CONSOLE_BOLD_TEXT << freq // Show potentially adjusted freq
+            << _INFO_CONSOLE_TEXT << ":input_width:" << _LOG_CONSOLE_BOLD_TEXT << pin_pwm_width
+            << _INFO_CONSOLE_TEXT << ":calc_divisor:" << _LOG_CONSOLE_BOLD_TEXT << clock_divisor
+            << _INFO_CONSOLE_TEXT << ":calc_range:" << _LOG_CONSOLE_BOLD_TEXT << pwm_range
+            << _INFO_CONSOLE_TEXT << ":pwm_value:" << _LOG_CONSOLE_BOLD_TEXT << pwm_value
+            << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
 
-    changeGPIOByNumber (pin_number, freq, pin_pwm_width);
-        
-    std::cout << _SUCCESS_CONSOLE_BOLD_TEXT_ << "PWM set on Pin Number: " << _INFO_CONSOLE_BOLD_TEXT << pin_number 
-                    << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", Frequency: " << _INFO_CONSOLE_BOLD_TEXT  << freq
-                    << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", pin_pwm_width: " << _INFO_CONSOLE_BOLD_TEXT << pin_pwm_width
-                    << std::endl;
+    #ifndef TEST_MODE_NO_WIRINGPI_LINK
+    // --- Apply Settings using WiringPi ---
+    pwmSetMode(PWM_MODE_MS);      // Mark:Space mode is common
+    pwmSetClock(clock_divisor);   // Set the calculated clock divisor
+    pwmSetRange(pwm_range);       // Set the calculated range (resolution)
+    pwmWrite(pin_number, pwm_value); // Set the scaled duty cycle
+    #endif
+
+    // Update internal state tracking
+    changeGPIOByNumber (pin_number, freq, pin_pwm_width); // Store original requested values or actuals? Decide based on class needs. Storing requested here.
+
+    // Success Output - showing actual calculated parameters might be more informative
+    std::cout << _SUCCESS_CONSOLE_BOLD_TEXT_ << "PWM set on Pin: " << _INFO_CONSOLE_BOLD_TEXT << pin_number
+              << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", Target Freq: " << _INFO_CONSOLE_BOLD_TEXT << freq << " Hz" // Show potentially adjusted freq
+              << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", Actual Range: " << _INFO_CONSOLE_BOLD_TEXT << pwm_range
+              << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", Input Width: " << _INFO_CONSOLE_BOLD_TEXT << pin_pwm_width
+              << _SUCCESS_CONSOLE_BOLD_TEXT_ << ", Output Value: " << _INFO_CONSOLE_BOLD_TEXT << pwm_value
+              << std::endl;
+
+    // Add a specific warning if the target frequency of 0.025 Hz was requested but not achieved
+    if (freq < 1.0 && pwm_range == MAX_HW_PWM_RANGE && clock_divisor == MAX_PWM_CLOCK_DIVISOR) { // Heuristic for hitting the low limit
+        double min_achievable = static_cast<double>(baseClock) / (MAX_PWM_CLOCK_DIVISOR * MAX_HW_PWM_RANGE);
+         if (freq > min_achievable * 1.01) { // Check if we are close to the theoretical limit
+             std::cout << _ERROR_CONSOLE_TEXT_ << "Note: Minimum achievable hardware PWM frequency is approx. "
+                       << min_achievable << " Hz. Requested frequency may not be accurately generated." << _NORMAL_CONSOLE_TEXT_ << std::endl;
+         }
+    }
 }
             
 
