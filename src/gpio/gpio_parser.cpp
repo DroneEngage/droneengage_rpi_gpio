@@ -285,6 +285,8 @@ void CGPIOParser::parseRemoteExecute (Json_de &andruav_message)
     #ifdef DEBUG
     std::cout << "cmd: " << remoteCommand << std::endl;
     #endif 
+
+    UNUSED (remoteCommand);
     
     // switch (remoteCommand)
     // {
