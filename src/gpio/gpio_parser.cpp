@@ -1,4 +1,5 @@
 #include "../global.hpp"
+#include "../helpers/colors.hpp"
 #include "../helpers/helpers.hpp"
 #include "gpio_parser.hpp"
 #include "gpio_facade.hpp"
@@ -38,7 +39,11 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
 
     UNUSED(is_system);
     UNUSED(permission);
-    std::cout << "messageType:" << messageType << std::endl;
+
+    #ifdef DEBUG
+    std::cout << _INFO_CONSOLE_TEXT << "RXmessage:" << _LOG_CONSOLE_BOLD_TEXT << andruav_message.dump() << _NORMAL_CONSOLE_TEXT_ << std::endl;
+    #endif    
+    
 
     if (messageType == TYPE_AndruavMessage_RemoteExecute)
     {
@@ -64,15 +69,17 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
 
                 const Json_de cmd = andruav_message[ANDRUAV_PROTOCOL_MESSAGE_CMD];
         
-                if (!cmd.contains("i")) return ; // no module key defined
+                if (cmd.contains("i")) 
+                {   // if module_key is specified then check if it is the same as the current module key.
 
-                const std::string module_key = cmd["i"].get<std::string>(); 
-                
-                de::gpio::CGPIOMain& cGPIOMain = de::gpio::CGPIOMain::getInstance();
-                if (module_key != cGPIOMain.getModuleKey())
-                {
-                    // Module key mismatch
-                    return;
+                    const std::string module_key = cmd["i"].get<std::string>(); 
+                    
+                    de::gpio::CGPIOMain& cGPIOMain = de::gpio::CGPIOMain::getInstance();
+                    if (module_key != cGPIOMain.getModuleKey())
+                    {
+                        // Module key mismatch
+                        return;
+                    }
                 }
 
                 if (!cmd.contains("a") || !cmd["a"].is_number_integer()) return ;
