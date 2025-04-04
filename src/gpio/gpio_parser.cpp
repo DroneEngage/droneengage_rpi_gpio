@@ -165,7 +165,13 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
                         
                         // Handle GPIO write based on mode
                         if (gpio->pin_mode == OUTPUT) {
-                            if (gpio->pin_value != value) trigger_event = true;
+                            if (gpio->pin_value != value) 
+                            {
+                                if (gpio->pin_name != "power_led")
+                                {
+                                    trigger_event = true;
+                                }
+                            }
                             m_gpio_driver.writePin(gpio->pin_number, value);
                         } else if (gpio->pin_mode == PWM_OUTPUT) {
                             // PWM mode requires PWM width
