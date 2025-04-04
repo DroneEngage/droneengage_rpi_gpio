@@ -71,12 +71,12 @@ bool CGPIODriver::initGPIOFromConfigFile()
             
             if (pin.contains("value") && (gpio.pin_mode != INPUT))
             {
-                gpio.pin_value = pin["value"];          
+                gpio.pin_value = pin["value"].get<int>();
             }
 
             if (pin.contains("width"))
             {
-                gpio.pin_pwm_width = pin["width"];
+                gpio.pin_pwm_width = pin["width"].get<int>();
             }
 
             if (pin.contains("name"))
@@ -93,6 +93,7 @@ bool CGPIODriver::initGPIOFromConfigFile()
     }
     catch(const std::exception& e)
     {
+        std::cerr << _ERROR_CONSOLE_TEXT_ << "Exception in initGPIOFromConfigFile: " << e.what() << _NORMAL_CONSOLE_TEXT_ << std::endl;
         return false;
     }
     
@@ -140,12 +141,17 @@ bool CGPIODriver::init()
 {
     m_gpio_array.clear();
 
-    wiringPiSetupGpio () ;
-  
-    initGPIOFromConfigFile();
-    
-    
-    return true;
+#ifndef TEST_MODE_NO_WIRINGPI_LINK
+    if (wiringPiSetupGpio () == -1)
+    {
+        std::cerr << _ERROR_CONSOLE_TEXT_ << "Error: Unable to setup WiringPi GPIO." << _NORMAL_CONSOLE_TEXT_ << std::endl;
+        return false;
+    }
+#else
+    wiringPiSetupGpio ();
+#endif
+
+    return initGPIOFromConfigFile();
 }
 
 bool CGPIODriver::uninit()
@@ -165,12 +171,13 @@ void CGPIODriver::setPinMode (uint pin_number, uint pin_mode)
     {
         pullUpDnControl(pin_number, PUD_DOWN);
     }
-
-    pullUpDnControl(pin_number, PUD_UP); // Enable pull-up resistor on button
-
+    else if (pin_mode == INPUT)
+    {
+        pullUpDnControl(pin_number, PUD_UP); // Enable pull-up resistor on button
+    }
     #endif
 }
-            
+
 int CGPIODriver::readPin(uint pin_number)
 {
     const GPIO* gpio = getGPIOByNumber (pin_number);
@@ -240,11 +247,11 @@ GPIO* CGPIODriver::_getGPIOByName (const std::string& pin_name) const
     std::cout << _INFO_CONSOLE_TEXT << ":getGPIOByName:" << _LOG_CONSOLE_BOLD_TEXT << pin_name << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
 
-    if (pin_name == "") return nullptr;
+    if (pin_name.empty()) return nullptr;
 
     for (const auto& gpio : m_gpio_array) {
         if (gpio.pin_name == pin_name) {
-            return (GPIO*)(&gpio); // Return the matched GPIO record
+            return const_cast<GPIO*>(&gpio); // Return the matched GPIO record
         }
     }
     return nullptr; // Return nullptr if not found
@@ -256,7 +263,7 @@ GPIO* CGPIODriver::_getGPIOByNumber (uint pin_number) const
     #ifdef DEBUG
     std::cout << _INFO_CONSOLE_TEXT << ":getGPIOByNumber:pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
-    
+
     for (const auto& gpio : m_gpio_array) {
         if (gpio.pin_number == pin_number) {
             return const_cast<GPIO*>(&gpio); // Return the matched GPIO record
@@ -270,7 +277,7 @@ void CGPIODriver::removeGPIOByNumber (uint pin_number)
     #ifdef DEBUG
     std::cout << _INFO_CONSOLE_TEXT << ":removeGPIOByNumber:pin_number:" << _LOG_CONSOLE_BOLD_TEXT << pin_number << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
-    
+
     for (auto it = m_gpio_array.begin(); it != m_gpio_array.end(); ++it) {
         if (it->pin_number == pin_number) {
             m_gpio_array.erase(it); // Remove the matched GPIO record
