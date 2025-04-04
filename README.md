@@ -45,7 +45,7 @@ The module uses RPI GPIO as on-off ports to controll leds, buzzer, motors ...etc
 To compile on your laptop without linking to wiringpi you can use
 
 
-    cmake -D CMAKE_BUILD_TYPE=DEBUG  -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON  -DTEST_MODE_NO_WIRINGPI_LINK=ON ../
+    cmake -D CMAKE_BUILD_TYPE=DEBUG  -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON  -DTEST_MODE_NO_WIRINGPI_LINK:BOOL=ON ../
 
       
     
