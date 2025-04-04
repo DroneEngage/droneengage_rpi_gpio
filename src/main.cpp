@@ -66,6 +66,13 @@ void uninit ();
 void _version (void)
 {
     std::cout << std::endl << _SUCCESS_CONSOLE_BOLD_TEXT_ "Drone-Engage RPI GPIO Switch (RPI-GPIO) Module version " << _INFO_CONSOLE_TEXT << version_string << _NORMAL_CONSOLE_TEXT_ << std::endl;
+
+    #ifdef TEST_MODE_NO_WIRINGPI_LINK
+    std::cout << std::endl << _ERROR_CONSOLE_BOLD_TEXT_ "NO GPIO ACCESS --- VIRTUAL CALLS ONLY" << _INFO_CONSOLE_TEXT << version_string << _NORMAL_CONSOLE_TEXT_ << std::endl;
+    #else
+    std::cout << std::endl << _SUCCESS_CONSOLE_BOLD_TEXT_ "GPIO Port Access " << _INFO_CONSOLE_TEXT << version_string << _NORMAL_CONSOLE_TEXT_ << std::endl;
+    #endif
+    
 }
 
 
