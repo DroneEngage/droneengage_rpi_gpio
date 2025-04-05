@@ -40,10 +40,7 @@ void CGPIO_Facade::API_sendGPIOStatus(const std::string&target_party_id, const b
             {"v", gpio.pin_value}
         };
         
-        #ifdef DEBUG
-        std::cout << "API_sendGPIOStatus:" << json_gpio.dump() << std::endl;
-        #endif
-
+        
         if (!gpio.pin_name.empty())
         {
             json_gpio["n"] =  gpio.pin_name;
@@ -63,8 +60,8 @@ void CGPIO_Facade::API_sendGPIOStatus(const std::string&target_party_id, const b
             {"s", json_array}
         };
 
-    #ifdef DDEBUG
-        std::cout << "XXXXXXXXXXXXXXXXXXXXX" << jMsg.dump() << std::endl;
+    #ifdef DEBUG
+        std::cout << "API_sendGPIOStatus:" << jMsg.dump() << std::endl;
     #endif
     
     m_module.sendJMSG (target_party_id, jMsg, TYPE_AndruavMessage_GPIO_STATUS,  internal);
