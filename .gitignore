@@ -2,7 +2,7 @@
 /build/
 /Debug/
 
-de_rpi_gpio.local
+de_rpi_gpio*.local
 
 *.sh
 !build.sh
