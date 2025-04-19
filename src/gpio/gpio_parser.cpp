@@ -287,28 +287,4 @@ void CGPIOParser::parseRemoteExecute (Json_de &andruav_message)
     #endif 
 
     UNUSED (remoteCommand);
-    
-    // switch (remoteCommand)
-    // {
-    //     case TYPE_AndruavMessage_GPIO_ACTION:
-    //     {
-    //         const int subCommand = cmd["a"].get<int>();
-
-    //         switch (subCommand)
-    //         {
-    //             case GPIO_ACTION_GPIO_INFO:
-    //                 CGPIO_Facade::getInstance().API_GPIOInfo(andruav_message[ANDRUAV_PROTOCOL_SENDER].get<std::string>());
-    //                 break;
-    //             case GPIO_ACTION_LIST_GPIO_DEVICES:
-    //                 CGPIO_Facade::getInstance().API_SendGPIODrivers(andruav_message[ANDRUAV_PROTOCOL_SENDER].get<std::string>());
-    //                 break;
-                
-    //             default:
-    //                 break;
-    //         }
-    //     }
-    //     break;
-
-        
-    // }
 }
