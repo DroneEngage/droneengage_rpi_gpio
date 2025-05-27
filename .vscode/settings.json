@@ -72,6 +72,12 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "variant": "cpp",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "bitset": "cpp",
+        "__locale": "cpp",
+        "__verbose_abort": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "print": "cpp"
     }
 }

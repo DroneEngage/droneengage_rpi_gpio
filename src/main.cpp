@@ -55,7 +55,7 @@ static std::string hardware_serial;
 
        
 void quit_handler( int sig );
-void onReceive (const char * message, int len);
+void onReceive (const char * message, int len, Json_de jMsg);
 void uninit ();
 
 
@@ -65,12 +65,12 @@ void uninit ();
  */
 void _version (void)
 {
-    std::cout << std::endl << _SUCCESS_CONSOLE_BOLD_TEXT_ "Drone-Engage RPI GPIO Switch (RPI-GPIO) Module version " << _INFO_CONSOLE_TEXT << version_string << _NORMAL_CONSOLE_TEXT_ << std::endl;
+    std::cout << std::endl << _SUCCESS_CONSOLE_BOLD_TEXT_ "Drone-Engage RPI GPIO Switch (RPI-GPIO) Module " << _INFO_CONSOLE_TEXT << "version " << version_string << _NORMAL_CONSOLE_TEXT_ << std::endl;
 
     #ifdef TEST_MODE_NO_WIRINGPI_LINK
-    std::cout << std::endl << _ERROR_CONSOLE_BOLD_TEXT_ "NO GPIO ACCESS --- VIRTUAL CALLS ONLY" << _INFO_CONSOLE_TEXT << version_string << _NORMAL_CONSOLE_TEXT_ << std::endl;
+    std::cout << std::endl << _ERROR_CONSOLE_BOLD_TEXT_ "NO GPIO ACCESS --- VIRTUAL CALLS ONLY " << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #else
-    std::cout << std::endl << _SUCCESS_CONSOLE_BOLD_TEXT_ "GPIO Port Access " << _INFO_CONSOLE_TEXT << version_string << _NORMAL_CONSOLE_TEXT_ << std::endl;
+    std::cout << std::endl << _SUCCESS_CONSOLE_BOLD_TEXT_ "GPIO Port Access " << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif
     
 }
@@ -125,22 +125,6 @@ void onReceive (const char * message, int len, Json_de jMsg)
     
     try
     {
-        const int messageType = jMsg[ANDRUAV_PROTOCOL_MESSAGE_TYPE].get<int>();
-
-        if (std::strcmp(jMsg[INTERMODULE_ROUTING_TYPE].get<std::string>().c_str(), CMD_TYPE_INTERMODULE)==0)
-        {
-            
-            
-        
-            if (messageType== TYPE_AndruavModule_ID)
-            {
-                
-                cGPIOMain.setPartyID(cModule.getPartyId(), cModule.getGroupId());
-                
-                return ;
-            }
-        }
-
         cGPIOParser.parseMessage(jMsg, message, len);
     }
     catch(const std::exception& e)
@@ -213,8 +197,7 @@ void initDEModule(int argc, char *argv[])
         Json_de::array(MESSAGE_FILTER)
     );
 
-    cModule.addModuleFeatures(MODULE_FEATURE_SENDING_TELEMETRY);
-    cModule.addModuleFeatures(MODULE_FEATURE_RECEIVING_TELEMETRY);
+    cModule.addModuleFeatures(MODULE_FEATURE_GPIO);
     cModule.setHardware(hardware_serial, ENUM_HARDWARE_TYPE::HARDWARE_TYPE_CPU);
     
     cModule.setMessageOnReceive (&onReceive);
@@ -232,9 +215,9 @@ void initDEModule(int argc, char *argv[])
     }
 
     // UDP Server
-    cModule.init(jsonConfig["s2s_udp_target_ip"].get<std::string>().c_str(),
+    cModule.init(jsonConfig["s2s_udp_target_ip"].get<std::string>(),
             std::stoi(jsonConfig["s2s_udp_target_port"].get<std::string>().c_str()),
-            jsonConfig["s2s_udp_listening_ip"].get<std::string>().c_str() ,
+            jsonConfig["s2s_udp_listening_ip"].get<std::string>() ,
             std::stoi(jsonConfig["s2s_udp_listening_port"].get<std::string>().c_str()),
             udp_chunk_size);
     
@@ -254,13 +237,15 @@ void initSerial()
  **/
 void init (int argc, char *argv[]) 
 {
+    signal(SIGINT,quit_handler);
+    signal(SIGTERM,quit_handler);
+    
     instance_time_stamp = std::time(nullptr);
     
+    // 1- initialize module
     initArguments (argc, argv);
-    
-    signal(SIGINT,quit_handler);
-	
-    //initialize serial
+
+    // 2- initialize serial
     initSerial();
 
     // Reading Configuration

@@ -7,10 +7,10 @@
 
 
 /**
- * @brief configuraytion file path & name
+ * @brief configuration file path & name
  * 
  */
 static std::string configName = "de_rpi_gpio.config.module.json";
-static std::string localConfigName = "de_rpi_gpio.local";
+static std::string localConfigName = "de_rpi_gpio.config.local";
 
 #endif

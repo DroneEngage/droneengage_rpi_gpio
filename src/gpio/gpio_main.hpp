@@ -58,17 +58,7 @@ namespace gpio
             void loopScheduler();
 
         public:
-            /**
-             * @brief Set the PartyID & GroupID
-             * 
-             * @param party_id 
-             * @param group_id 
-             */
-            void setPartyID (const std::string& party_id, const std::string& group_id) 
-            {
-                m_party_id = party_id;
-                m_group_id = group_id;
-            };
+            
 
             
             /**
@@ -88,9 +78,7 @@ namespace gpio
             std::thread m_scheduler_thread;
 
             std::string m_module_key;
-            std::string m_party_id;
-            std::string m_group_id;
-
+            
             bool m_exit_thread = true;
             
             CGPIODriver &m_gpio_driver = CGPIODriver::getInstance();
