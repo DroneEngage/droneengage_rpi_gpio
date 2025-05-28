@@ -48,6 +48,11 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 SET(CMAKE_BUILD_TYPE DEBUG)
 ENDIF()
 
+# Define an option for user control over DETAILED_DEBUG
+option(DDEBUG "Detailed Debug" OFF) # Default is OFF
+option(TEST_MODE_NO_WIRINGPI_LINK "Simulation mode" OFF) # Default is OFF
+
+
 message ("${Yellow}=========================================================================${ColourReset}")
 message ("CMAKE_C_COMPILER: "  ${CMAKE_C_COMPILER})
 message ("CMAKE_CXX_COMPILER: " ${CMAKE_CXX_COMPILER})
@@ -110,6 +115,10 @@ else()
   target_compile_definitions(OUTPUT_BINARY PRIVATE TEST_MODE_NO_WIRINGPI_LINK)
 endif()
 
+# Conditionally define DDEBUG based on the DDEBUG option
+target_compile_definitions(OUTPUT_BINARY PRIVATE
+    $<$<BOOL:${DDEBUG}>:DDEBUG>
+)
 set_target_properties( OUTPUT_BINARY 
                 PROPERTIES 
                     OUTPUT_NAME "de_rpi_gpio"
@@ -127,6 +136,15 @@ target_compile_options(OUTPUT_BINARY
 
 configure_file(de_rpi_gpio.config.module.json ${OUTPUT_DIRECTORY}/de_rpi_gpio.config.module.json COPYONLY)
 
+# Highlight if DDEBUG or TEST_MODE_NO_HAILO_LINK are enabled
+if (DDEBUG)
+    message(STATUS "${Red}Option DDEBUG is ENABLED.${ColourReset}")
+endif()
+
+
+if (TEST_MODE_NO_WIRINGPI_LINK)
+    message(STATUS "${Red}TEST_MODE_NO_WIRINGPI_LINK - SIMULATION MODE is ENABLED.${ColourReset}")
+endif()
 
 message ("${Yellow}=========================================================================${ColourReset}")
 
