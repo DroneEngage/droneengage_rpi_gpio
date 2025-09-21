@@ -7,3 +7,4 @@ de_rpi_gpio*.local
 *.sh
 !build.sh
 !compile.sh
+checks.json
