@@ -124,7 +124,6 @@ target_compile_definitions(OUTPUT_BINARY PRIVATE
 set_target_properties( OUTPUT_BINARY
         PROPERTIES
           OUTPUT_NAME "de_rpi_gpio"
-          SUFFIX ".so"
         )
 
 
