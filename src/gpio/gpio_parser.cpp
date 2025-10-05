@@ -1,6 +1,6 @@
 #include "../global.hpp"
-#include "../helpers/colors.hpp"
-#include "../helpers/helpers.hpp"
+#include "../de_common/helpers/colors.hpp"
+#include "../de_common/helpers/helpers.hpp"
 #include "gpio_parser.hpp"
 #include "gpio_facade.hpp"
 #include "gpio_main.hpp"
@@ -32,7 +32,7 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
     }
 
     bool is_system = false;
-    if ((validateField(andruav_message, ANDRUAV_PROTOCOL_SENDER, Json_de::value_t::string)) && (andruav_message[ANDRUAV_PROTOCOL_SENDER].get<std::string>().compare(SPECIAL_NAME_SYS_NAME)==0))
+    if ((validateField(andruav_message, ANDRUAV_PROTOCOL_SENDER, Json_de::value_t::string)) && (andruav_message[ANDRUAV_PROTOCOL_SENDER].get<std::string>().compare(ANDRUAV_PROTOCOL_SENDER_COMM_SERVER)==0))
     {   // permission is not needed if this command sender is the communication server not a remote GCS or Unit.
         is_system = true;
     }
@@ -272,7 +272,7 @@ void CGPIOParser::parseRemoteExecute (Json_de &andruav_message)
 
     bool is_system = false;
      
-    if ((validateField(andruav_message, ANDRUAV_PROTOCOL_SENDER, Json_de::value_t::string)) && (andruav_message[ANDRUAV_PROTOCOL_SENDER].get<std::string>().compare(SPECIAL_NAME_SYS_NAME)==0))
+    if ((validateField(andruav_message, ANDRUAV_PROTOCOL_SENDER, Json_de::value_t::string)) && (andruav_message[ANDRUAV_PROTOCOL_SENDER].get<std::string>().compare(ANDRUAV_PROTOCOL_SENDER_COMM_SERVER)==0))
     {   // permission is not needed if this command sender is the communication server not a remote GCS or Unit.
         is_system = true;
     }

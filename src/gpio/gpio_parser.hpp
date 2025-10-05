@@ -1,7 +1,7 @@
 #ifndef GPIO_PARSER_H_
 #define GPIO_PARSER_H_
 
-#include "../helpers/json_nlohmann.hpp"
+#include "../de_common/helpers/json_nlohmann.hpp"
 using Json_de = nlohmann::json;
 
 #include "gpio_facade.hpp"

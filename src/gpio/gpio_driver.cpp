@@ -4,8 +4,8 @@ void wiringPiSetupGpio(){}
 #else
 #include <wiringPi.h>
 #endif
-#include "../helpers/colors.hpp"
-#include "../de_common/configFile.hpp"
+#include "../de_common/helpers/colors.hpp"
+#include "../de_common/de_databus/configFile.hpp"
 
 #include "gpio_driver.hpp"
 #include "gpio_facade.hpp"

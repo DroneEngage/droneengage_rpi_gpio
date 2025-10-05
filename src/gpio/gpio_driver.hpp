@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-#include "../helpers/json_nlohmann.hpp"
+#include "../de_common/helpers/json_nlohmann.hpp"
 using Json_de = nlohmann::json;
 #define MAX_PWM 1024 // The user's desired input scale and preferred PWM range
 

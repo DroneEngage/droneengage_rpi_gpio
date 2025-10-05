@@ -1,10 +1,10 @@
 #include <iostream>
-#include "../helpers/colors.hpp"
-#include "../helpers/helpers.hpp"
+#include "../de_common/helpers/colors.hpp"
+#include "../de_common/helpers/helpers.hpp"
 #include "../defines.hpp"
 
-#include "../de_common/configFile.hpp"
-#include "../de_common/localConfigFile.hpp"
+#include "../de_common/de_databus/configFile.hpp"
+#include "../de_common/de_databus/localConfigFile.hpp"
 #include "gpio_main.hpp"
 #include "gpio_facade.hpp"
 #include "gpio_driver.hpp"

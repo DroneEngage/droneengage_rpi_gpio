@@ -1,7 +1,7 @@
 #ifndef GPIO_FACADE_H_
 #define GPIO_FACADE_H_
 
-#include "../de_common/de_facade_base.hpp"
+#include "../de_common/de_databus/de_facade_base.hpp"
 #include "gpio_driver.hpp"
 
 namespace de

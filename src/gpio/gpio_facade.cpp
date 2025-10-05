@@ -1,6 +1,6 @@
 #include <iostream>
-#include "../helpers/colors.hpp"
-#include "../helpers/helpers.hpp"
+#include "../de_common/helpers/colors.hpp"
+#include "../de_common/helpers/helpers.hpp"
 #include "../defines.hpp"
 #ifdef TEST_MODE_NO_WIRINGPI_LINK
 
@@ -8,7 +8,7 @@
 #include <wiringPi.h>
 #endif
 
-#include "../helpers/helpers.hpp"
+#include "../de_common/helpers/helpers.hpp"
 #include "gpio_facade.hpp"
 #include "gpio_driver.hpp"
 #include "gpio_main.hpp"

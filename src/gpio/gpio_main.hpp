@@ -1,13 +1,13 @@
 
-#include "../de_common/messages.hpp"
-#include "../de_common/de_module.hpp"
+#include "../de_common/de_databus/messages.hpp"
+#include "../de_common/de_databus/de_module.hpp"
 #include "../defines.hpp"
 
 #include "gpio_facade.hpp"
 #include "gpio_parser.hpp"
 #include "gpio_driver.hpp"
 
-#include "../helpers/json_nlohmann.hpp"
+#include "../de_common/helpers/json_nlohmann.hpp"
 using Json_de = nlohmann::json;
 
 

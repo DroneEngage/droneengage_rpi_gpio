@@ -95,11 +95,13 @@ SET(EXECUTABLE_OUTPUT_PATH ${OUTPUT_DIRECTORY})
 file(GLOB folder_src "./src/*.cpp")
 file(GLOB folder_helpers "./src/helpers/*.cpp")
 file(GLOB folder_common "./src/de_common/*.cpp")
+file(GLOB folder_common1 "./src/de_common/helpers/*.cpp")
+file(GLOB folder_common2 "./src/de_common/de_databus/*.cpp")
 file(GLOB folder_gpio "./src/gpio/*.cpp")
 
 
 
-set(files ${folder_src} ${folder_common} ${folder_gpio} ${folder_helpers})
+set(files ${folder_src} ${folder_common} ${folder_common1} ${folder_common2} ${folder_gpio} ${folder_helpers})
 
 include_directories(${PROJECT_SOURCE_DIR}/3rdparty)
 
