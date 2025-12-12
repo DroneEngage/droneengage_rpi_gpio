@@ -19,44 +19,16 @@ using namespace de::gpio;
 /// @param parsed JSON message received from uavos_comm 
 /// @param full_message 
 /// @param full_message_length 
-void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_message, const int & full_message_length)
+void CGPIOParser::parseCommand(Json_de &andruav_message, const char *full_message, const int &full_message_length, int messageType, uint32_t permission)
 {
-    const int messageType = andruav_message[ANDRUAV_PROTOCOL_MESSAGE_TYPE].get<int>();
-    bool is_binary = !(full_message[full_message_length-1]==125 || (full_message[full_message_length-2]==125));   // "}".charCodeAt(0)  IS TEXT / BINARY Msg  
-    
-
-    uint32_t permission = 0;
-    if (validateField(andruav_message, ANDRUAV_PROTOCOL_MESSAGE_PERMISSION, Json_de::value_t::number_unsigned))
-    {
-        permission =  andruav_message[ANDRUAV_PROTOCOL_MESSAGE_PERMISSION].get<int>();
-    }
-
-    bool is_system = false;
-    if ((validateField(andruav_message, ANDRUAV_PROTOCOL_SENDER, Json_de::value_t::string)) && (andruav_message[ANDRUAV_PROTOCOL_SENDER].get<std::string>().compare(ANDRUAV_PROTOCOL_SENDER_COMM_SERVER)==0))
-    {   // permission is not needed if this command sender is the communication server not a remote GCS or Unit.
-        is_system = true;
-    }
-
-    UNUSED(is_system);
-    UNUSED(permission);
+    const Json_de cmd = andruav_message[ANDRUAV_PROTOCOL_MESSAGE_CMD];
 
     #ifdef DEBUG
     std::cout << _INFO_CONSOLE_TEXT << "RXmessage:" << _LOG_CONSOLE_BOLD_TEXT << andruav_message.dump() << _NORMAL_CONSOLE_TEXT_ << std::endl;
     #endif    
     
 
-    if (messageType == TYPE_AndruavMessage_RemoteExecute)
-    {
-        parseRemoteExecute(andruav_message);
-
-        return ;
-    }
-
-    else
-    {
-        Json_de cmd = andruav_message[ANDRUAV_PROTOCOL_MESSAGE_CMD];
-        
-        switch (messageType)
+    switch (messageType)
         {
             case TYPE_AndruavMessage_GPIO_ACTION:
             {
@@ -246,45 +218,19 @@ void CGPIOParser::parseMessage (Json_de &andruav_message, const char * full_mess
             }
             break;
         }
-
-    }
-
-    UNUSED(is_binary);
 }
 
-/**
- * @brief part of parseMessage that is responsible only for
- * parsing remote execute command.
- * 
- * @param andruav_message 
- */
-void CGPIOParser::parseRemoteExecute (Json_de &andruav_message)
+
+void CGPIOParser::parseRemoteExecute(Json_de &andruav_message)
 {
     const Json_de cmd = andruav_message[ANDRUAV_PROTOCOL_MESSAGE_CMD];
-    
-    if (!validateField(cmd, "C", Json_de::value_t::number_unsigned)) return ;
-                
-    uint32_t permission = 0;
-    if (validateField(andruav_message, ANDRUAV_PROTOCOL_MESSAGE_PERMISSION, Json_de::value_t::number_unsigned))
-    {
-        permission =  andruav_message[ANDRUAV_PROTOCOL_MESSAGE_PERMISSION].get<int>();
-    }
 
-    bool is_system = false;
-     
-    if ((validateField(andruav_message, ANDRUAV_PROTOCOL_SENDER, Json_de::value_t::string)) && (andruav_message[ANDRUAV_PROTOCOL_SENDER].get<std::string>().compare(ANDRUAV_PROTOCOL_SENDER_COMM_SERVER)==0))
-    {   // permission is not needed if this command sender is the communication server not a remote GCS or Unit.
-        is_system = true;
-    }
+    if (!validateField(cmd, "C", Json_de::value_t::number_unsigned))
+        return;
 
-    UNUSED (is_system);
-    UNUSED (permission);
-    
     const int remoteCommand = cmd["C"].get<int>();
-    
-    #ifdef DEBUG
-    std::cout << "cmd: " << remoteCommand << std::endl;
-    #endif 
 
-    UNUSED (remoteCommand);
+#ifdef DEBUG
+    std::cout << "cmd: " << remoteCommand << std::endl;
+#endif
 }
