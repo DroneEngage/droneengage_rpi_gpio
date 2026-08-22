@@ -228,9 +228,8 @@ void CGPIOParser::parseRemoteExecute(Json_de &andruav_message)
     if (!validateField(cmd, "C", Json_de::value_t::number_unsigned))
         return;
 
-    const int remoteCommand = cmd["C"].get<int>();
-
 #ifdef DEBUG
+    const int remoteCommand = cmd["C"].get<int>();
     std::cout << "cmd: " << remoteCommand << std::endl;
 #endif
 }
