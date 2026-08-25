@@ -27,7 +27,7 @@ message( FATAL_ERROR “In-source builds not allowed! Create a build directory a
 exit(1)
 endif()
 
-SET (__APP__VERSION__ "1.4.1")
+SET (__APP__VERSION__ "1.4.2")
 add_definitions( -D__APP__VERSION__="${__APP__VERSION__}")
 project(DE_RPI_GPIO VERSION ${__APP__VERSION__})
 
