@@ -274,8 +274,8 @@ void init (int argc, char *argv[])
     // should be last
     initDEModule (argc,argv);
 
-    // de_rpi_gpio is a lightweight module; a legitimate leak is unlikely to
-    // need more than the generic defaults, so no override is passed here.
+    // de_rpi_gpio is a lightweight module; tighten the generic 500MB/20MB-h
+    // defaults so a real leak actually trips WARNING/CRITICAL.
     de::comm::CFacade_Base::getInstance().configureMemoryStatus(150, 5);
 
 }
