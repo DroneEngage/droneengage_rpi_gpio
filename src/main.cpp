@@ -14,6 +14,7 @@
 #include "./de_common/de_databus/localConfigFile.hpp"
 #include "./de_common/de_databus/udpClient.hpp"
 #include "./de_common/de_databus/de_module.hpp"
+#include "./de_common/de_databus/de_facade_base.hpp"
 #include "./gpio/gpio_driver.hpp"
 #include "./gpio/gpio_main.hpp"
 
@@ -273,6 +274,10 @@ void init (int argc, char *argv[])
     // should be last
     initDEModule (argc,argv);
 
+    // de_rpi_gpio is a lightweight module; a legitimate leak is unlikely to
+    // need more than the generic defaults, so no override is passed here.
+    de::comm::CFacade_Base::getInstance().configureMemoryStatus(150, 5);
+
 }
 
 
@@ -327,6 +332,9 @@ int main (int argc, char *argv[])
 	
     init (argc, argv);
 
+    // de_common's CModule owns the periodic memory-health heartbeat now
+    // (started automatically by cModule.init()); this loop just keeps the
+    // process alive while the background threads (scheduler, UDP client) run.
     while (!exit_me)
     {
        std::this_thread::sleep_for(std::chrono::seconds(1));
